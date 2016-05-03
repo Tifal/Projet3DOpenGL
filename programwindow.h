@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QSlider>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QTimer>
 #include <QPushButton>
@@ -17,12 +17,13 @@ class ProgramWindow : public QWidget
 public:
     ProgramWindow();
     void configureScreen();
-    void initData(QString& fileName);
 
 public slots:
     void changeStep(int index);
-    void launchDemo();
-    void demo();
+    void demoPlaying();
+    void startDemo();
+    void pauseDemo();
+    void stopDemo();
 
 signals:
     void stopTimer();
@@ -33,6 +34,8 @@ private:
     Data data;
     QLabel *label;
     QPushButton *demoButton;
+    QPushButton *pauseButton;
+    QPushButton *stopButton;
     QTimer *timer;
 };
 

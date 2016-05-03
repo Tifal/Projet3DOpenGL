@@ -38,3 +38,7 @@ const QVector<float>& Data::get1Vector(int index) {
         return dataCoordinates.at(index);
     }
 }
+
+int Data::getDataCoordinatesSize() const {
+    return dataCoordinates.size();
+}

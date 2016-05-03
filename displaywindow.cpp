@@ -12,22 +12,19 @@ void DisplayWindow::setViewPort() {
 void DisplayWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    QMatrix4x4 *projection = new QMatrix4x4;
-    projection->perspective(70.0, (double)width() / (double)height(), 1.0, 20.0);
-    float * tab = projection->data();
+    QMatrix4x4 projection;
+    projection.perspective(70.0, (double)width() / (double)height(), 1.0, 20.0);
+    float * tab = projection.data();
     glMultMatrixf(tab);
-    delete projection;
 }
 
 void DisplayWindow::setModelView() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    QMatrix4x4 *view = new QMatrix4x4;
-    //view->lookAt(QVector3D(2,0.5,2), QVector3D(0.0, 0.0, 0.0), QVector3D(0.0, 1.0, 0.0));
-    view->lookAt(QVector3D(2, 2, 0.5), QVector3D(0.0, 0.0, 0.0), QVector3D(0.0, 0.0, 1.0));
-    float * tab = view->data();
+    QMatrix4x4 view;
+    view.lookAt(QVector3D(2, 2, 0.5), QVector3D(0.0, 0.0, 0.0), QVector3D(0.0, 0.0, 1.0));
+    float * tab = view.data();
     glMultMatrixf(tab);
-    delete view;
 }
 
 void DisplayWindow::setCoordinates(const QVector<float>& newCoordinates) {
@@ -91,14 +88,11 @@ void DisplayWindow::moveCamera(QMouseEvent *event) {
     int zAngle = 0;
     int yAngle = 0;
     zAngle = (event->x() - mouseXStartPosition) / 4;
-    yAngle = (mouseYStartPosition - event->y()) / 4;
+    yAngle = (mouseYStartPosition - event->y()) / 8;
+    glRotatef(-yAngle, 0, 1, 0);
+    glRotatef(yAngle, 1, 0, 0);
+
     glRotatef(zAngle, 0, 0, 1);
-    if(mouseYStartPosition < width() / 2 || mouseXStartPosition > height() / 2) {
-        glRotatef(yAngle, 1, 0, 1);
-    }
-    else {
-        glRotatef(-yAngle, 1, 0, 1);
-    }
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
     update();
