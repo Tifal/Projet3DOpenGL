@@ -1,5 +1,8 @@
 #include "programwindow.h"
 
+/** Constructor to initialize and create the content of the window.
+ * @brief ProgramWindow::ProgramWindow
+ */
 
 ProgramWindow::ProgramWindow() : QWidget()
 {
@@ -52,11 +55,20 @@ ProgramWindow::ProgramWindow() : QWidget()
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
 }
 
+/** Method that initializes the screen.
+ * @brief ProgramWindow::configureScreen
+ */
+
 void ProgramWindow::configureScreen() {
     screen->setViewPort();
     screen->setProjection();
     screen->setModelView();
 }
+
+/** Method that changes the step of the view.
+ * @brief ProgramWindow::changeStep
+ * @param index
+ */
 
 void ProgramWindow::changeStep(int index) {
     screen->setCoordinates(data.get1Vector(index));
@@ -65,6 +77,10 @@ void ProgramWindow::changeStep(int index) {
     screen->update();
 }
 
+/** Method that manages the demo playing.
+ * @brief ProgramWindow::demoPlaying
+ */
+
 void ProgramWindow::demoPlaying() {
     slider->setValue(slider->value() + 1);
     if(slider->value() == slider->maximum()) {
@@ -72,12 +88,20 @@ void ProgramWindow::demoPlaying() {
     }
 }
 
+/** Method that pauses the demo.
+ * @brief ProgramWindow::pauseDemo
+ */
+
 void ProgramWindow::pauseDemo() {
     emit stopTimer();
     delete timer;
     demoButton->setEnabled(true);
     pauseButton->setDisabled(true);
 }
+
+/** Method that starts the demo.
+ * @brief ProgramWindow::startDemo
+ */
 
 void ProgramWindow::startDemo() {
     demoButton->setDisabled(true);
@@ -89,6 +113,10 @@ void ProgramWindow::startDemo() {
     connect(this, SIGNAL(stopTimer()), timer, SLOT(stop()));
     connect(timer, SIGNAL(timeout()), this, SLOT(demoPlaying()));
 }
+
+/** Method that stops the demo.
+ * @brief ProgramWindow::stopDemo
+ */
 
 void ProgramWindow::stopDemo() {
     slider->setValue(0);

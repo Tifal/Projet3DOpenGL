@@ -3,11 +3,24 @@
 
 using namespace std;
 
+/** Constructor to initialize the window.
+ * @brief DisplayWindow::DisplayWindow
+ * @param parent
+ */
+
 DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) { }
+
+/** Method that sets the viewport of the window.
+ * @brief DisplayWindow::setViewPort
+ */
 
 void DisplayWindow::setViewPort() {
     glViewport(0, 0, width(), height());
 }
+
+/** Method that sets the projection matrix.
+ * @brief DisplayWindow::setProjection
+ */
 
 void DisplayWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
@@ -18,6 +31,10 @@ void DisplayWindow::setProjection() {
     glMultMatrixf(tab);
 }
 
+/** Method that sets the model and view matrix.
+ * @brief DisplayWindow::setModelView
+ */
+
 void DisplayWindow::setModelView() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -27,9 +44,18 @@ void DisplayWindow::setModelView() {
     glMultMatrixf(tab);
 }
 
+/** Method that sets the
+ * @brief DisplayWindow::setCoordinates
+ * @param newCoordinates
+ */
+
 void DisplayWindow::setCoordinates(const QVector<float>& newCoordinates) {
     coordinates = newCoordinates;
 }
+
+/** Method to initialize and use OpenGL.
+ * @brief DisplayWindow::initializeGL
+ */
 
 void DisplayWindow::initializeGL()
 {
@@ -37,7 +63,17 @@ void DisplayWindow::initializeGL()
     qDebug() << "initializeGL()";
 }
 
+/** Method called when the window is resized.
+ * @brief DisplayWindow::resizeGL
+ * @param w
+ * @param h
+ */
+
 void DisplayWindow::resizeGL(int w, int h){}
+
+/** Method that is called when the window is painted.
+ * @brief DisplayWindow::paintGL
+ */
 
 void DisplayWindow::paintGL()
 {
@@ -73,14 +109,29 @@ void DisplayWindow::paintGL()
     glFlush();
 }
 
+/** Method that implements the mouse pressed event.
+ * @brief DisplayWindow::mousePressEvent
+ * @param event
+ */
+
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
 }
 
+/** Method that implements the mouse moved event.
+ * @brief DisplayWindow::mouseMoveEvent
+ * @param event
+ */
+
 void DisplayWindow::mouseMoveEvent(QMouseEvent *event) {
     moveCamera(event);
 }
+
+/** Method that implements the move of the camera.
+ * @brief DisplayWindow::moveCamera
+ * @param event
+ */
 
 void DisplayWindow::moveCamera(QMouseEvent *event) {
     makeCurrent();
@@ -97,6 +148,10 @@ void DisplayWindow::moveCamera(QMouseEvent *event) {
     mouseYStartPosition = event->y();
     update();
 }
+
+/** Method that implements the reset of the camera.
+ * @brief DisplayWindow::resetCamera
+ */
 
 void DisplayWindow::resetCamera() {
     makeCurrent();
