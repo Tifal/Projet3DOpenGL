@@ -4,19 +4,21 @@
 #include <QVector>
 #include <QFile>
 #include <iostream>
+#include "marker.h"
 
 class Data
 {
 
 private:
-    QVector<QVector<float>> dataCoordinates;
-    int indexCurrentStep;
+    QVector<QVector<Marker>> dataCoordinates;
+    int indexCurrentStep;   //????
 
 public:
     Data();
     void displayData() const;
     void loadData(QString& fileName);
-    const QVector<float>& get1Vector(int index);
+    //const QVector<float>& get1Vector(int index);
+    const QVector<Marker>& get1Vector(int index);
     int getDataCoordinatesSize() const;
 };
 

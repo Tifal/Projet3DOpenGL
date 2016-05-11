@@ -19,11 +19,11 @@ ProgramWindow::ProgramWindow() : QWidget()
     label->setMaximumHeight(30);
 
     demoButton = new QPushButton("Start demo", this);
-    //demoButton->setIcon(QIcon("icons/Gtk-media-play-ltr.svg"));
+    demoButton->setIcon(QIcon("icons/Gtk-media-play-ltr.svg"));
     stopButton = new QPushButton("Stop", this);
-    //stopButton->setIcon(QIcon("icons/Gtk-media-stop.svg"));
+    stopButton->setIcon(QIcon("icons/Gtk-media-stop.svg"));
     pauseButton = new QPushButton("Pause", this);
-    //pauseButton->setIcon(QIcon("icons/Fairytale_player_pause.svg"));
+    pauseButton->setIcon(QIcon("icons/Fairytale_player_pause.svg"));
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
 
@@ -46,13 +46,18 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
 
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
+    connect(screen, SIGNAL(markerPicked()), this, SLOT(fillWindowCoordinates()));
 
     QString s("files/comb_traj_20160219_121123.dat");
     data.loadData(s);
-    screen->setCoordinates(data.get1Vector(0));
 
+    screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
+
+    coordinatesWindow = new CoordinatesWindow;
+    show();
+    coordinatesWindow->show();
 }
 
 /** Method that initializes the screen.
@@ -70,11 +75,31 @@ void ProgramWindow::configureScreen() {
  * @param index
  */
 
+
 void ProgramWindow::changeStep(int index) {
     screen->setCoordinates(data.get1Vector(index));
     label->setText("Step number : " + QString::number(index + 1));
-     //calls paintGL
+    fillWindowCoordinates();
+    //calls paintGL
     screen->update();
+}
+
+void ProgramWindow::fillWindowCoordinates() {
+    if(screen->getFirstMarkerPickedIndex() != -1) {
+        coordinatesWindow->setCoordinatesMarker1(data.get1Vector(slider->value()).at(screen->getFirstMarkerPickedIndex()));
+    }
+    else {
+        coordinatesWindow->resetCoordinatesMarker1();
+    }
+    if(screen->getSecondMarkerPickedIndex() != -1) {
+        coordinatesWindow->setCoordinatesMarker2(data.get1Vector(slider->value()).at(screen->getSecondMarkerPickedIndex()));
+    }
+    else {
+        coordinatesWindow->resetCoordinatesMarker2();
+    }
+    if(screen->getFirstMarkerPickedIndex() != -1 && screen->getSecondMarkerPickedIndex() != -1) {
+        coordinatesWindow->setDistance(data.get1Vector(slider->value()).at(screen->getFirstMarkerPickedIndex()), data.get1Vector(slider->value()).at(screen->getSecondMarkerPickedIndex()));
+    }
 }
 
 /** Method that manages the demo playing.

@@ -6,11 +6,17 @@ TARGET = OpenGL2Fonctionnel
 TEMPLATE = app
 
 
-SOURCES += main.cpp \
-    displaywindow.cpp \
-    programwindow.cpp \
-    data.cpp
+HEADERS += \
+    coordinateswindow.h \
+    data.h \
+    displaywindow.h \
+    marker.h \
+    programwindow.h
 
-HEADERS  += displaywindow.h \
-    programwindow.h \
-    data.h
+SOURCES += \
+    coordinateswindow.cpp \
+    data.cpp \
+    displaywindow.cpp \
+    marker.cpp \
+    programwindow.cpp \
+    main.cpp

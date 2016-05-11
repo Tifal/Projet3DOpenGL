@@ -1,14 +1,24 @@
 #include "displaywindow.h"
+#include "marker.h"
 #include <iostream>
-
-using namespace std;
 
 /** Constructor to initialize the window.
  * @brief DisplayWindow::DisplayWindow
  * @param parent
  */
 
-DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) { }
+DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
+    firstMarkerPickedIndex = -1;
+    secondMarkerPickedIndex = -1;
+}
+
+int DisplayWindow::getFirstMarkerPickedIndex() const {
+    return firstMarkerPickedIndex;
+}
+
+int DisplayWindow::getSecondMarkerPickedIndex() const {
+    return secondMarkerPickedIndex;
+}
 
 /** Method that sets the viewport of the window.
  * @brief DisplayWindow::setViewPort
@@ -39,7 +49,7 @@ void DisplayWindow::setModelView() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     QMatrix4x4 view;
-    view.lookAt(QVector3D(2, 2, 0.5), QVector3D(0.0, 0.0, 0.0), QVector3D(0.0, 0.0, 1.0));
+    view.lookAt(QVector3D(2, -2, 0.5), QVector3D(0.0, 0.0, 0.0), QVector3D(0.0, 0.0, 1.0));
     float * tab = view.data();
     glMultMatrixf(tab);
 }
@@ -49,7 +59,7 @@ void DisplayWindow::setModelView() {
  * @param newCoordinates
  */
 
-void DisplayWindow::setCoordinates(const QVector<float>& newCoordinates) {
+void DisplayWindow::setCoordinates(const QVector<Marker>& newCoordinates) {
     coordinates = newCoordinates;
 }
 
@@ -78,15 +88,26 @@ void DisplayWindow::resizeGL(int w, int h){}
 void DisplayWindow::paintGL()
 {
     qDebug() << "paintGL";
-
+    glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glPointSize(2.0);
+    glPointSize(3.0);
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
-
-    for(int i = 0 ; i < coordinates.size() ; i += 3) {
-        glVertex3f(coordinates.at(i) / 1500, coordinates.at(i + 1) /1500, coordinates.at(i + 2) /1500);
+    for(int i = 0 ; i < coordinates.size() ; i++) {
+        if(i == firstMarkerPickedIndex) {
+            glColor3f(1.0, 0.0, 0.0);
+            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
+            glColor3f(1.0, 1.0, 1.0);
+        }
+        else if(i == secondMarkerPickedIndex) {
+            glColor3f(0.0, 0.0, 1.0);
+            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
+            glColor3f(1.0, 1.0, 1.0);
+        }
+        else {
+            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
+        }
     }
     glEnd();
 
@@ -117,6 +138,9 @@ void DisplayWindow::paintGL()
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
+    if(event->modifiers() == Qt::CTRL) {
+        pickMarker(event);
+    }
 }
 
 /** Method that implements the mouse moved event.
@@ -126,6 +150,34 @@ void DisplayWindow::mousePressEvent(QMouseEvent *event) {
 
 void DisplayWindow::mouseMoveEvent(QMouseEvent *event) {
     moveCamera(event);
+}
+
+void DisplayWindow::pickMarker(QMouseEvent *event) {
+    makeCurrent();
+    unsigned char pixelRead[4];
+    glDrawBuffer(GL_BACK);
+    glClearColor(0.0, 0.0 ,0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    for(auto marker : coordinates) {
+        glPointSize(3.0);
+        glBegin(GL_POINTS);
+            glColor3f(marker.getRedId() / 255.0, marker.getGreenId() / 255.0, marker.getBlueId() / 255.0);
+            glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
+        glEnd();
+    }
+    glFlush();
+    glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
+    int index = (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
+    if(event->button() == Qt::LeftButton) {
+        firstMarkerPickedIndex = index;
+    }
+    if(event->button() == Qt::RightButton) {
+        secondMarkerPickedIndex = index;
+    }
+    emit markerPicked();
+
+    std::cout << "resultat : " << index <<  std::endl;
+    update();
 }
 
 /** Method that implements the move of the camera.
@@ -158,4 +210,3 @@ void DisplayWindow::resetCamera() {
     setModelView();
     update();
 }
-

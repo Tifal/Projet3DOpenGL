@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include "displaywindow.h"
 #include "data.h"
+#include "coordinateswindow.h"
 
 class ProgramWindow : public QWidget
 {
@@ -20,6 +21,7 @@ public:
 
 public slots:
     void changeStep(int index);
+    void fillWindowCoordinates();
     void demoPlaying();
     void startDemo();
     void pauseDemo();
@@ -31,6 +33,7 @@ signals:
 private:
     QSlider *slider;
     DisplayWindow *screen;
+    CoordinatesWindow *coordinatesWindow;
     Data data;
     QLabel *label;
     QPushButton *demoButton;

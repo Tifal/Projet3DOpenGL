@@ -1,5 +1,6 @@
 #include "data.h"
 
+
 /** Constructor to initialize the data.
  * @brief Data::Data
  */
@@ -14,8 +15,8 @@ Data::Data() {
 
 void Data::displayData() const {
     for(auto vect : dataCoordinates) {
-        for(auto element : vect) {
-            std::cout << element << " " << std::flush;
+        for(int i = 0 ; i < vect.size() ; i++) {
+            std::cout << vect.at(i).getX() << " " << vect.at(i).getY() << " " << vect.at(i).getZ() << " " << std::flush;
         }
         std::cout << std::endl;
     }
@@ -25,19 +26,19 @@ void Data::displayData() const {
  * @brief Data::loadData
  * @param fileName
  */
+
 void Data::loadData(QString& fileName) {
     QFile fichier(fileName);
     fichier.open(QIODevice::ReadOnly);
     QString s;
     QStringList liste;
     while(!fichier.atEnd()) {
-        dataCoordinates.append(QVector<float>());
+        dataCoordinates.append(QVector<Marker>());
         s = fichier.readLine(10000);
         liste = s.split('\t');
-        for(auto element : liste) {
-            dataCoordinates.last().append(element.toFloat());
+        for(int i = 0 ; i < liste.size() - 1; i += 3) {
+           dataCoordinates.last().append(Marker(i / 3 + 1, liste.at(i).toFloat(), liste.at(i + 1).toFloat(), liste.at(i + 2).toFloat()));
         }
-        dataCoordinates.last().removeLast();
     }
     fichier.close();
 }
@@ -48,13 +49,8 @@ void Data::loadData(QString& fileName) {
  * @return
  */
 
-const QVector<float>& Data::get1Vector(int index) {
-    if(index < 0 || index >= dataCoordinates.size()) {
-        std::cout << "the index must be positive and inferior to the size of the vector" << std::endl;
-    }
-    else {
-        return dataCoordinates.at(index);
-    }
+const QVector<Marker>& Data::get1Vector(int index) {
+    return dataCoordinates.at(index);
 }
 
 /** Method that returns the size of the storing data.
