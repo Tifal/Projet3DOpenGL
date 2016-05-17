@@ -11,7 +11,8 @@ HEADERS += \
     data.h \
     displaywindow.h \
     marker.h \
-    programwindow.h
+    programwindow.h \
+    filewindow.h
 
 SOURCES += \
     coordinateswindow.cpp \
@@ -19,4 +20,5 @@ SOURCES += \
     displaywindow.cpp \
     marker.cpp \
     programwindow.cpp \
-    main.cpp
+    main.cpp \
+    filewindow.cpp

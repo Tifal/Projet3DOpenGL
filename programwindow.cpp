@@ -1,13 +1,16 @@
 #include "programwindow.h"
-
+#include <iostream>
+#include <string>
+#include <QString>
+#include "filewindow.h"
 /** Constructor to initialize and create the content of the window.
  * @brief ProgramWindow::ProgramWindow
  */
-
+static QString choice="choice1";
+//FileWindow filewindow;
 ProgramWindow::ProgramWindow() : QWidget()
 {
     setFixedSize(800, 800);
-
     setWindowTitle("Test");
 
     slider = new QSlider(Qt::Orientation::Horizontal, this);
@@ -29,6 +32,9 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     QPushButton *resetButton = new QPushButton("Reset Camera", this);
 
+    QPushButton *displayFileCoordinates=new QPushButton("Display file coordinates",this);
+    QRadioButton *displayChoice1=new QRadioButton("View of Mr. Holt",this);
+    QRadioButton *displayChoice2=new QRadioButton("View of Mr. Nilsen",this);
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(screen,0,0,1,3);
     layout->addWidget(label,1,0,1,3);
@@ -37,6 +43,9 @@ ProgramWindow::ProgramWindow() : QWidget()
     layout->addWidget(pauseButton,3,1);
     layout->addWidget(stopButton,3,2);
     layout->addWidget(resetButton,4,0,1,3);
+    layout->addWidget(displayFileCoordinates,5,1,2,2);
+    layout->addWidget(displayChoice1,5,0);
+    layout->addWidget(displayChoice2,6,0);
 
     setLayout(layout);
 
@@ -47,14 +56,16 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
     connect(screen, SIGNAL(markerPicked()), this, SLOT(fillWindowCoordinates()));
-
+    connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
+    connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
+    connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
     QString s("files/comb_traj_20160219_121123.dat");
     data.loadData(s);
 
     screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
-
+    filewindow=new FileWindow;
     coordinatesWindow = new CoordinatesWindow;
     show();
     coordinatesWindow->show();
@@ -153,4 +164,26 @@ void ProgramWindow::stopDemo() {
     }
     stopButton->setDisabled(true);
 }
+void ProgramWindow::changeChoice1(){
+   choice="choice1";
+}
+void ProgramWindow::changeChoice2(){
+    choice="choice2";
+}
 
+void ProgramWindow::displayFile(){
+    qDebug() << "displayFile";
+    const char* myChar = choice.toStdString().c_str();
+    if(strcmp(myChar,"choice1")==0){
+      filewindow->setViewMrHolt();
+        filewindow->show();
+        /*QWidget *w=new QWidget();
+        w->show();*/
+    }
+    else if(strcmp(myChar,"choice2")==0){
+        filewindow->setViewMrNilsen();
+        filewindow->show();
+
+    }
+
+}

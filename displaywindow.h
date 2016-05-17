@@ -20,6 +20,7 @@ private:
     int firstMarkerPickedIndex;
     int secondMarkerPickedIndex;
 
+
 public:
     DisplayWindow(QWidget *parent = Q_NULLPTR);
     int getFirstMarkerPickedIndex() const;

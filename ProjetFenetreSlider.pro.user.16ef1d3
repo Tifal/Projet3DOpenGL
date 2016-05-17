@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.6.1, 2016-05-17T02:11:54. -->
+<!-- Written by QtCreator 3.6.1, 2016-05-11T21:16:17. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{7cf73d69-8dd9-46ab-86a9-401cafc64fae}</value>
+  <value type="QByteArray">{16ef1d39-fa3f-423c-8764-802e64bf514f}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -283,8 +283,8 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">ProjetFenetreSlider</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Tifal/Documents/Projet3DOpenGL/ProjetFenetreSlider.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">ProjetFenetreSlider2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/QtWorkspace/Projet3DOpenGL/ProjetFenetreSlider.pro</value>
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">ProjetFenetreSlider.pro</value>

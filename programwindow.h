@@ -10,7 +10,8 @@
 #include "displaywindow.h"
 #include "data.h"
 #include "coordinateswindow.h"
-
+#include <QRadioButton>
+#include "filewindow.h"
 class ProgramWindow : public QWidget
 {
     Q_OBJECT
@@ -26,6 +27,9 @@ public slots:
     void startDemo();
     void pauseDemo();
     void stopDemo();
+    void displayFile();
+    void changeChoice1();
+    void changeChoice2();
 
 signals:
     void stopTimer();
@@ -34,12 +38,18 @@ private:
     QSlider *slider;
     DisplayWindow *screen;
     CoordinatesWindow *coordinatesWindow;
+    FileWindow *filewindow;
     Data data;
     QLabel *label;
     QPushButton *demoButton;
     QPushButton *pauseButton;
     QPushButton *stopButton;
+    QPushButton *displayFileCoordinates;
+    QRadioButton *displayChoice1;
+    QRadioButton *displayChoice2;
+
     QTimer *timer;
+
 };
 
 #endif // PROGRAMWINDOW_H
