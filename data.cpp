@@ -49,8 +49,12 @@ void Data::loadData(QString& fileName) {
  * @return
  */
 
-const QVector<Marker>& Data::get1Vector(int index) {
+const QVector<Marker>& Data::get1Vector(int index) const {
     return dataCoordinates.at(index);
+}
+
+const Marker& Data::get1Marker(int step, int index) const {
+    return dataCoordinates.at(step).at(index);
 }
 
 /** Method that returns the size of the storing data.
@@ -61,3 +65,4 @@ const QVector<Marker>& Data::get1Vector(int index) {
 int Data::getDataCoordinatesSize() const {
     return dataCoordinates.size();
 }
+

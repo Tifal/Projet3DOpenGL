@@ -18,8 +18,10 @@ public:
     void displayData() const;
     void loadData(QString& fileName);
     //const QVector<float>& get1Vector(int index);
-    const QVector<Marker>& get1Vector(int index);
+    const QVector<Marker>& get1Vector(int index) const;
+    const Marker& get1Marker(int step, int index) const;
     int getDataCoordinatesSize() const;
 };
 
 #endif // DATA_H
+

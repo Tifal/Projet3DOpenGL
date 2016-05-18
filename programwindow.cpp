@@ -1,17 +1,18 @@
 #include "programwindow.h"
-#include <iostream>
-#include <string>
-#include <QString>
-#include "filewindow.h"
+
 /** Constructor to initialize and create the content of the window.
  * @brief ProgramWindow::ProgramWindow
  */
 static QString choice="choice1";
-//FileWindow filewindow;
+
 ProgramWindow::ProgramWindow() : QWidget()
 {
     setFixedSize(800, 800);
+
     setWindowTitle("Test");
+
+    QString s("files/comb_traj_20160219_121123.dat");
+    data.loadData(s);
 
     slider = new QSlider(Qt::Orientation::Horizontal, this);
 
@@ -30,11 +31,14 @@ ProgramWindow::ProgramWindow() : QWidget()
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
 
+    coordinatesWindow = new CoordinatesWindow;
+
     QPushButton *resetButton = new QPushButton("Reset Camera", this);
 
     QPushButton *displayFileCoordinates=new QPushButton("Display file coordinates",this);
     QRadioButton *displayChoice1=new QRadioButton("View of Mr. Holt",this);
     QRadioButton *displayChoice2=new QRadioButton("View of Mr. Nilsen",this);
+
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(screen,0,0,1,3);
     layout->addWidget(label,1,0,1,3);
@@ -53,20 +57,20 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(demoButton, SIGNAL(clicked(bool)), this, SLOT(startDemo()));
     connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
     connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
-
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
-    connect(screen, SIGNAL(markerPicked()), this, SLOT(fillWindowCoordinates()));
+    connect(screen, SIGNAL(markerPicked(int)), this, SLOT(fillWindowCoordinates(int)));
+    connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
+
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
     connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
     connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
-    QString s("files/comb_traj_20160219_121123.dat");
-    data.loadData(s);
 
     screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
+
     filewindow=new FileWindow;
-    coordinatesWindow = new CoordinatesWindow;
+
     show();
     coordinatesWindow->show();
 }
@@ -90,28 +94,23 @@ void ProgramWindow::configureScreen() {
 void ProgramWindow::changeStep(int index) {
     screen->setCoordinates(data.get1Vector(index));
     label->setText("Step number : " + QString::number(index + 1));
-    fillWindowCoordinates();
+    updateWindowCoordinates();
     //calls paintGL
     screen->update();
 }
 
-void ProgramWindow::fillWindowCoordinates() {
-    if(screen->getFirstMarkerPickedIndex() != -1) {
-        coordinatesWindow->setCoordinatesMarker1(data.get1Vector(slider->value()).at(screen->getFirstMarkerPickedIndex()));
-    }
-    else {
-        coordinatesWindow->resetCoordinatesMarker1();
-    }
-    if(screen->getSecondMarkerPickedIndex() != -1) {
-        coordinatesWindow->setCoordinatesMarker2(data.get1Vector(slider->value()).at(screen->getSecondMarkerPickedIndex()));
-    }
-    else {
-        coordinatesWindow->resetCoordinatesMarker2();
-    }
-    if(screen->getFirstMarkerPickedIndex() != -1 && screen->getSecondMarkerPickedIndex() != -1) {
-        coordinatesWindow->setDistance(data.get1Vector(slider->value()).at(screen->getFirstMarkerPickedIndex()), data.get1Vector(slider->value()).at(screen->getSecondMarkerPickedIndex()));
-    }
+void ProgramWindow::fillWindowCoordinates(int index) {
+    coordinatesWindow->addLineCoordinates(data.get1Marker(slider->value(), index));
 }
+
+void ProgramWindow::updateWindowCoordinates() {
+    QVector<Marker> markerVector;
+    for(auto index : screen->getMarkerPickedIndexes()) {
+        markerVector.append(data.get1Marker(slider->value(), index));
+    }
+    coordinatesWindow->updateCoordinates(markerVector);
+}
+
 
 /** Method that manages the demo playing.
  * @brief ProgramWindow::demoPlaying
@@ -164,6 +163,7 @@ void ProgramWindow::stopDemo() {
     }
     stopButton->setDisabled(true);
 }
+
 void ProgramWindow::changeChoice1(){
    choice="choice1";
 }
@@ -185,5 +185,4 @@ void ProgramWindow::displayFile(){
         filewindow->show();
 
     }
-
 }

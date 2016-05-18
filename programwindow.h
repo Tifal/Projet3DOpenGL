@@ -7,11 +7,12 @@
 #include <QLabel>
 #include <QTimer>
 #include <QPushButton>
+#include <QRadioButton>
 #include "displaywindow.h"
 #include "data.h"
 #include "coordinateswindow.h"
-#include <QRadioButton>
 #include "filewindow.h"
+
 class ProgramWindow : public QWidget
 {
     Q_OBJECT
@@ -19,10 +20,11 @@ class ProgramWindow : public QWidget
 public:
     ProgramWindow();
     void configureScreen();
+    void updateWindowCoordinates();
 
 public slots:
     void changeStep(int index);
-    void fillWindowCoordinates();
+    void fillWindowCoordinates(int index);
     void demoPlaying();
     void startDemo();
     void pauseDemo();
@@ -47,9 +49,7 @@ private:
     QPushButton *displayFileCoordinates;
     QRadioButton *displayChoice1;
     QRadioButton *displayChoice2;
-
     QTimer *timer;
-
 };
 
 #endif // PROGRAMWINDOW_H

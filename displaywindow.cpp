@@ -1,24 +1,15 @@
 #include "displaywindow.h"
 #include "marker.h"
 #include <iostream>
+#include <QColor>
 
 /** Constructor to initialize the window.
  * @brief DisplayWindow::DisplayWindow
  * @param parent
  */
 
-DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
-    firstMarkerPickedIndex = -1;
-    secondMarkerPickedIndex = -1;
-}
+DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {}
 
-int DisplayWindow::getFirstMarkerPickedIndex() const {
-    return firstMarkerPickedIndex;
-}
-
-int DisplayWindow::getSecondMarkerPickedIndex() const {
-    return secondMarkerPickedIndex;
-}
 
 /** Method that sets the viewport of the window.
  * @brief DisplayWindow::setViewPort
@@ -63,6 +54,15 @@ void DisplayWindow::setCoordinates(const QVector<Marker>& newCoordinates) {
     coordinates = newCoordinates;
 }
 
+const QVector<int>& DisplayWindow::getMarkerPickedIndexes() const {
+    return markerPickedIndexes;
+}
+
+void DisplayWindow::removePickedIndex(int index) {
+    markerPickedIndexes.remove(index);
+    update();
+}
+
 /** Method to initialize and use OpenGL.
  * @brief DisplayWindow::initializeGL
  */
@@ -90,26 +90,24 @@ void DisplayWindow::paintGL()
     qDebug() << "paintGL";
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-
     glPointSize(3.0);
+    int colorIndex = 7;
+    QColor *color = new QColor(Qt::GlobalColor(colorIndex));
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
-    for(int i = 0 ; i < coordinates.size() ; i++) {
-        if(i == firstMarkerPickedIndex) {
-            glColor3f(1.0, 0.0, 0.0);
-            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
-            glColor3f(1.0, 1.0, 1.0);
-        }
-        else if(i == secondMarkerPickedIndex) {
-            glColor3f(0.0, 0.0, 1.0);
-            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
-            glColor3f(1.0, 1.0, 1.0);
-        }
-        else {
-            glVertex3f(coordinates.at(i).getX() / 1500, coordinates.at(i).getY() / 1500, coordinates.at(i).getZ() / 1500);
-        }
+    for(auto marker : coordinates) {
+        glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
     }
+    for(auto index : markerPickedIndexes) {
+        glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
+        glVertex3f(coordinates.at(index).getX() / 1500, coordinates.at(index).getY() / 1500, coordinates.at(index).getZ() / 1500);
+        delete color;
+        colorIndex++;
+        color = new QColor(Qt::GlobalColor(colorIndex));
+    }
+    glColor3f(1.0, 1.0, 1.0);
     glEnd();
+    delete color;
 
     glBegin(GL_LINES);
         glColor3f(1.0, 0.0, 0.0);
@@ -138,8 +136,8 @@ void DisplayWindow::paintGL()
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
-    if(event->modifiers() == Qt::CTRL) {
-        pickMarker(event);
+    if(event->modifiers() == Qt::CTRL && markerPickedIndexes.size() < 12) {
+        pickMarker();
     }
 }
 
@@ -152,9 +150,9 @@ void DisplayWindow::mouseMoveEvent(QMouseEvent *event) {
     moveCamera(event);
 }
 
-void DisplayWindow::pickMarker(QMouseEvent *event) {
+void DisplayWindow::pickMarker() {
     makeCurrent();
-    unsigned char pixelRead[4];
+    unsigned char pixelRead[3];
     glDrawBuffer(GL_BACK);
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -168,15 +166,10 @@ void DisplayWindow::pickMarker(QMouseEvent *event) {
     glFlush();
     glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
     int index = (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
-    if(event->button() == Qt::LeftButton) {
-        firstMarkerPickedIndex = index;
+    if(index != -1) {
+        markerPickedIndexes.append(index);
+        emit markerPicked(index);
     }
-    if(event->button() == Qt::RightButton) {
-        secondMarkerPickedIndex = index;
-    }
-    emit markerPicked();
-
-    std::cout << "resultat : " << index <<  std::endl;
     update();
 }
 

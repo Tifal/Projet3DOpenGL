@@ -9,7 +9,7 @@ void FileWindow::setViewMrHolt(){
     this->setWindowTitle("View from Mr. Holt");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
-            QFile fichier("comb_traj_20160219_121123.dat");
+            QFile fichier("files/comb_traj_20160219_121123.dat");
             QScrollArea *zoneDefilement = new QScrollArea;
             QLabel *label = new QLabel("test");
             setLayout(layout);
@@ -25,6 +25,7 @@ void FileWindow::setViewMrHolt(){
     //label->setText(s);
     zoneDefilement->setWidget(table);
     layout->addWidget(table);
+    layout->addWidget(label);
     QTableWidgetItem *item;
     int i = 0;
     int l=0;
@@ -53,7 +54,7 @@ void FileWindow::setViewMrHolt(){
         }
         i++;
     }
-    label->setText(""+countZero);
+    label->setText(""+ QString::number(countZero));
     table->resizeColumnsToContents();
 
     fichier.close();
@@ -63,7 +64,7 @@ void FileWindow::setViewMrNilsen(){
     this->setWindowTitle("View from Mr. Nilsen");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
-            QFile fichier("comb_traj_20160219_121123.dat");
+            QFile fichier("files/comb_traj_20160219_121123.dat");
             QScrollArea *zoneDefilement = new QScrollArea;
             QLabel *label = new QLabel("ligne vide");
             setLayout(layout);
@@ -77,6 +78,7 @@ void FileWindow::setViewMrNilsen(){
       table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
       zoneDefilement->setWidget(table);
       layout->addWidget(table);
+      layout->addWidget(label);
 ;
       QTableWidgetItem *item;
       int i = 0;

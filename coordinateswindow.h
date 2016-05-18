@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QGridLayout>
+#include <QVector>
+#include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
 #include <cmath>
@@ -10,34 +12,25 @@
 
 class CoordinatesWindow : public QWidget
 {
+    Q_OBJECT
 public:
     CoordinatesWindow(QWidget *parent = Q_NULLPTR);
-    void setCoordinatesMarker1(const Marker& marker);
-    void setCoordinatesMarker2(const Marker& marker);
-    void resetCoordinatesMarker1();
-    void resetCoordinatesMarker2();
     void setDistance(const Marker& marker1, const Marker& marker2);
+    void addLineCoordinates(const Marker& marker);
+    void updateCoordinates(QVector<Marker>& markerVector);
+    void updateColors(int index);
+
+public slots:
+    void removeLineCoordinates();
+
+signals:
+    void lineRemoved(int index);
 
 private:
     QGridLayout *layout;
-    QLineEdit *x1;
-    QLineEdit *y1;
-    QLineEdit *z1;
-    QLineEdit *x2;
-    QLineEdit *y2;
-    QLineEdit *z2;
-    QLineEdit *distance;
-};
-
-#endif // COORDINATESWINDOW_H
-#ifndef COORDINATESWINDOW_H
-#define COORDINATESWINDOW_H
-
-
-class CoordinatesWindow
-{
-public:
-    CoordinatesWindow();
+    QVector<QPushButton*> buttonVector;
+    QVector<QVector<QLineEdit*>> xyzVector;
+    int colorIndex;
 };
 
 #endif // COORDINATESWINDOW_H
