@@ -8,7 +8,11 @@
  * @param parent
  */
 
-DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {}
+DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
+    for(int i = 7 ; i < 19 ; i++) {
+        colorsAvailable.append(i);
+    }
+}
 
 
 /** Method that sets the viewport of the window.
@@ -54,12 +58,18 @@ void DisplayWindow::setCoordinates(const QVector<Marker>& newCoordinates) {
     coordinates = newCoordinates;
 }
 
-const QVector<int>& DisplayWindow::getMarkerPickedIndexes() const {
-    return markerPickedIndexes;
+const QVector<int>& DisplayWindow::getSelectedMarkerIndexes() const {
+    return selectedMarkerIndexes;
 }
 
 void DisplayWindow::removePickedIndex(int index) {
-    markerPickedIndexes.remove(index);
+    selectedMarkerIndexes.remove(index);
+    colorsAvailable.append(colorsAvailable.at(index));
+    colorsAvailable.remove(index);
+    for(auto element : colorsAvailable) {
+        std::cout << element << "," << std::flush;
+    }
+    std::cout << std::endl;
     update();
 }
 
@@ -91,23 +101,25 @@ void DisplayWindow::paintGL()
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glPointSize(3.0);
-    int colorIndex = 7;
-    QColor *color = new QColor(Qt::GlobalColor(colorIndex));
+    //int colorIndex = 7;
+    int colorIndex = 0;
+    QColor *color;
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
     for(auto marker : coordinates) {
         glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
     }
-    for(auto index : markerPickedIndexes) {
+    for(auto index : selectedMarkerIndexes) {
+        color = new QColor(Qt::GlobalColor(colorsAvailable.at(colorIndex)));
         glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
         glVertex3f(coordinates.at(index).getX() / 1500, coordinates.at(index).getY() / 1500, coordinates.at(index).getZ() / 1500);
         delete color;
         colorIndex++;
-        color = new QColor(Qt::GlobalColor(colorIndex));
+
     }
     glColor3f(1.0, 1.0, 1.0);
     glEnd();
-    delete color;
+    //delete color;
 
     glBegin(GL_LINES);
         glColor3f(1.0, 0.0, 0.0);
@@ -136,7 +148,7 @@ void DisplayWindow::paintGL()
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
-    if(event->modifiers() == Qt::CTRL && markerPickedIndexes.size() < 12) {
+    if(event->modifiers() == Qt::CTRL && selectedMarkerIndexes.size() < 12) {
         pickMarker();
     }
 }
@@ -166,11 +178,21 @@ void DisplayWindow::pickMarker() {
     glFlush();
     glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
     int index = (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
-    if(index != -1) {
-        markerPickedIndexes.append(index);
-        emit markerPicked(index);
+    if(index != -1 && !isSelectedIndex(index)) {
+        selectedMarkerIndexes.append(index);
+        //emit markerPicked(index);
+        emit markerPicked(index, colorsAvailable.at(selectedMarkerIndexes.size() - 1));
     }
     update();
+}
+
+bool DisplayWindow::isSelectedIndex(int index) {
+    for(auto element : selectedMarkerIndexes) {
+        if(element == index) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /** Method that implements the move of the camera.

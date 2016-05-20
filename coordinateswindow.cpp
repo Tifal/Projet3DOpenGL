@@ -30,7 +30,7 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     distance->setText(QString::number(result));
 }*/
 
-void CoordinatesWindow::addLineCoordinates(const Marker& marker) {
+void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
     int row = layout->rowCount();
     xyzVector.append(QVector<QLineEdit*>());
     QPalette palette;
@@ -42,9 +42,9 @@ void CoordinatesWindow::addLineCoordinates(const Marker& marker) {
     xyzVector.last().at(0)->setText(QString::number(marker.getX()));
     xyzVector.last().at(1)->setText(QString::number(marker.getY()));
     xyzVector.last().at(2)->setText(QString::number(marker.getZ()));
-    palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(colorIndex)));
+    palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(color)));
     xyzVector.last().at(3)->setPalette(palette);
-    colorIndex++;
+    //colorIndex++;
     buttonVector.append(new QPushButton("remove", this));
     connect(buttonVector.last(), SIGNAL(clicked(bool)), this, SLOT(removeLineCoordinates()));
     layout->addWidget(buttonVector.last(), row, 5);
@@ -74,7 +74,7 @@ void CoordinatesWindow::removeLineCoordinates() {
     layout->removeWidget(buttonVector.at(i));
     delete buttonVector.at(i);
     buttonVector.remove(i);
-    updateColors(i);
+    //updateColors(i);
 }
 
 void CoordinatesWindow::updateColors(int index) {

@@ -24,7 +24,7 @@ public:
 
 public slots:
     void changeStep(int index);
-    void fillWindowCoordinates(int index);
+    void fillWindowCoordinates(int index, int color);
     void demoPlaying();
     void startDemo();
     void pauseDemo();

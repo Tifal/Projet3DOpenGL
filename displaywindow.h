@@ -15,7 +15,8 @@ class DisplayWindow : public QOpenGLWidget, protected QOpenGLFunctions_2_0
     Q_OBJECT
 private:
     QVector<Marker> coordinates;
-    QVector<int> markerPickedIndexes;
+    QVector<int> selectedMarkerIndexes;
+    QVector<int> colorsAvailable;
     int mouseXStartPosition;
     int mouseYStartPosition;
 
@@ -25,7 +26,7 @@ public:
     void setProjection();
     void setModelView();
     void setCoordinates(const QVector<Marker>& newCoordinates);
-    const QVector<int>& getMarkerPickedIndexes() const;
+    const QVector<int>& getSelectedMarkerIndexes() const;
     //void setCoordinates(const QVector<Marker>& newCoordinates);
 
 public slots:
@@ -33,7 +34,8 @@ public slots:
     void removePickedIndex(int index);
 
 signals:
-    void markerPicked(int index);
+    //void markerPicked(int index);
+    void markerPicked(int index, int color);
 
 protected:
     void initializeGL();
@@ -42,6 +44,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void pickMarker();
+    bool isSelectedIndex(int index);
     void moveCamera(QMouseEvent *event);
 };
 

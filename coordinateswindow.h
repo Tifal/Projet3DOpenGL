@@ -16,7 +16,7 @@ class CoordinatesWindow : public QWidget
 public:
     CoordinatesWindow(QWidget *parent = Q_NULLPTR);
     void setDistance(const Marker& marker1, const Marker& marker2);
-    void addLineCoordinates(const Marker& marker);
+    void addLineCoordinates(const Marker& marker, int color);
     void updateCoordinates(QVector<Marker>& markerVector);
     void updateColors(int index);
 

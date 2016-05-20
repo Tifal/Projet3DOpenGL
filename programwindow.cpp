@@ -31,6 +31,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
 
+
     coordinatesWindow = new CoordinatesWindow;
 
     QPushButton *resetButton = new QPushButton("Reset Camera", this);
@@ -58,7 +59,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
     connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
-    connect(screen, SIGNAL(markerPicked(int)), this, SLOT(fillWindowCoordinates(int)));
+    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillWindowCoordinates(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
 
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
@@ -99,13 +100,13 @@ void ProgramWindow::changeStep(int index) {
     screen->update();
 }
 
-void ProgramWindow::fillWindowCoordinates(int index) {
-    coordinatesWindow->addLineCoordinates(data.get1Marker(slider->value(), index));
+void ProgramWindow::fillWindowCoordinates(int index, int color) {
+    coordinatesWindow->addLineCoordinates(data.get1Marker(slider->value(), index), color);
 }
 
 void ProgramWindow::updateWindowCoordinates() {
     QVector<Marker> markerVector;
-    for(auto index : screen->getMarkerPickedIndexes()) {
+    for(auto index : screen->getSelectedMarkerIndexes()) {
         markerVector.append(data.get1Marker(slider->value(), index));
     }
     coordinatesWindow->updateCoordinates(markerVector);
