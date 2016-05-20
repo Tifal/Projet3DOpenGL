@@ -33,7 +33,7 @@ void FileWindow::setViewMrHolt(){
         s = fichier.readLine(10000);
         liste = s.split('\t');
         l=0;
-        for(int j = 0 ; j < liste.size() ; j++) {
+        for(int j = 0 ; j < liste.size()-3 ; j+=3) {
 
             item = new QTableWidgetItem(liste.value(j)+liste.value(j+1)+liste.value(j+2));
             split=item->text().split(" ");
@@ -41,12 +41,10 @@ void FileWindow::setViewMrHolt(){
 
             table->setItem(l, i, item);
             QString x=split.value(0);
-            const char *xchar=x.toStdString().c_str();
             QString y=split.value(1);
-            const char *ychar=y.toStdString().c_str();
             QString z=split.value(2);
-            const char *zchar=z.toStdString().c_str();
-            if(strcmp(xchar,"0")==0&&strcmp(ychar,"0")==0&&strcmp(zchar,"0")==0){
+
+            if(x.toDouble()==0&&y.toDouble()==0&&z.toDouble()==0){
                 item->setBackgroundColor(QColor(255, 0, 0));
                 countZero++;
             }
@@ -72,7 +70,7 @@ void FileWindow::setViewMrNilsen(){
 
       QString s;
       QStringList liste;
-
+      int countZero=0;
       QTableWidget *table = new QTableWidget(114,300);
       table->setEditTriggers(QAbstractItemView::EditTriggers(0));
       table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -82,6 +80,8 @@ void FileWindow::setViewMrNilsen(){
 ;
       QTableWidgetItem *item;
       int i = 0;
+      QTableWidgetItem *itemx;
+      QTableWidgetItem* itemy;
       while(!fichier.atEnd()) {
           s = fichier.readLine(10000);
           liste = s.split('\t');
@@ -89,11 +89,23 @@ void FileWindow::setViewMrNilsen(){
               item = new QTableWidgetItem(liste.value(j));
 
               table->setItem(j, i, item);
-              if(item->text().toDouble()==0)
-              item->setBackgroundColor(QColor(255, 0, 0));
+
+              if(j%3==0){
+                  itemx=item;
+              }
+              else if(j%3==1){
+                  itemy=item;
+              }
+              else if(item->text().toDouble()==0||itemx->text().toDouble()==0||itemy->text().toDouble()==0){
+                  itemx->setBackgroundColor(QColor(255,0,0));
+                  itemy->setBackgroundColor(QColor(255,0,0));
+                  item->setBackgroundColor(QColor(255, 0, 0));
+                  countZero++;
+              }
           }
           i++;
       }
+      label->setText(""+ QString::number(countZero));
       table->resizeColumnsToContents();
       fichier.close();
 }
