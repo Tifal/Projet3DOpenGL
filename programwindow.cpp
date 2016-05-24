@@ -52,6 +52,19 @@ ProgramWindow::ProgramWindow() : QWidget()
     layout->addWidget(displayChoice1,5,0);
     layout->addWidget(displayChoice2,6,0);
 
+    selectModeButton = new QPushButton("select markers",this);
+    linkModeButton = new QPushButton("link markers",this);
+    QPushButton *eraseLinks = new QPushButton("erase links", this);
+    formerSteps = new QPushButton("display former steps", this);
+
+    layout->addWidget(selectModeButton, 7,0);
+    layout->addWidget(linkModeButton, 7, 1);
+    layout->addWidget(eraseLinks, 7, 2);
+    layout->addWidget(formerSteps, 8, 0);
+    selectModeButton->setCheckable(true);
+    linkModeButton->setCheckable(true);
+    formerSteps->setCheckable(true);
+
     setLayout(layout);
 
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeStep(int)));
@@ -59,14 +72,19 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
     connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
+    connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
+    connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
+    connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
+    connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
     connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillWindowCoordinates(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
 
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
     connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
     connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
+    screen->setData(data.getDataCoordinates());
 
-    screen->setCoordinates(data.get1Vector(0));
+    //screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
 
@@ -93,7 +111,8 @@ void ProgramWindow::configureScreen() {
 
 
 void ProgramWindow::changeStep(int index) {
-    screen->setCoordinates(data.get1Vector(index));
+    //screen->setCoordinates(data.get1Vector(index));
+    screen->setCurrentStep(index);
     label->setText("Step number : " + QString::number(index + 1));
     updateWindowCoordinates();
     //calls paintGL
@@ -186,4 +205,37 @@ void ProgramWindow::displayFile(){
         filewindow->show();
 
     }
+}
+
+void ProgramWindow::selectOrLinkMode() {
+    if(sender() == (QObject*)selectModeButton) {
+        if(selectModeButton->isChecked()) {
+            screen->setSelectMarkerMode(true);
+            screen->setLinkMarkerMode(false);
+            linkModeButton->setChecked(false);
+        }
+        else {
+            screen->setSelectMarkerMode(false);
+        }
+    }
+    else {
+        if(linkModeButton->isChecked()) {
+            screen->setLinkMarkerMode(true);
+            screen->setSelectMarkerMode(false);
+            selectModeButton->setChecked(false);
+        }
+        else {
+            screen->setLinkMarkerMode(false);
+        }
+    }
+}
+
+void ProgramWindow::enableDisplayFormerSteps() {
+    if(formerSteps->isChecked()) {
+        screen->setDisplayFormerSteps(true);
+    }
+    else {
+        screen->setDisplayFormerSteps(false);
+    }
+    screen->update();
 }

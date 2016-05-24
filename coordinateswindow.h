@@ -18,7 +18,7 @@ public:
     void setDistance(const Marker& marker1, const Marker& marker2);
     void addLineCoordinates(const Marker& marker, int color);
     void updateCoordinates(QVector<Marker>& markerVector);
-    void updateColors(int index);
+    //void updateColors(int index);
 
 public slots:
     void removeLineCoordinates();

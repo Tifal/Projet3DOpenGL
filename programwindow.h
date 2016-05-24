@@ -32,6 +32,8 @@ public slots:
     void displayFile();
     void changeChoice1();
     void changeChoice2();
+    void selectOrLinkMode();
+    void enableDisplayFormerSteps();
 
 signals:
     void stopTimer();
@@ -47,6 +49,9 @@ private:
     QPushButton *pauseButton;
     QPushButton *stopButton;
     QPushButton *displayFileCoordinates;
+    QPushButton *selectModeButton;
+    QPushButton *linkModeButton;
+    QPushButton *formerSteps;
     QRadioButton *displayChoice1;
     QRadioButton *displayChoice2;
     QTimer *timer;

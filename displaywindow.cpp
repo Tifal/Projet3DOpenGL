@@ -1,7 +1,7 @@
 #include "displaywindow.h"
-#include "marker.h"
+//#include "marker.h"
 #include <iostream>
-#include <QColor>
+
 
 /** Constructor to initialize the window.
  * @brief DisplayWindow::DisplayWindow
@@ -9,6 +9,12 @@
  */
 
 DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
+    data = NULL;
+    currentStep = 0;
+    linkMarkerMode = false;
+    selectMarkerMode = false;
+    displayFormerSteps = false;
+    linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
     for(int i = 7 ; i < 19 ; i++) {
         colorsAvailable.append(i);
     }
@@ -49,13 +55,12 @@ void DisplayWindow::setModelView() {
     glMultMatrixf(tab);
 }
 
-/** Method that sets the
- * @brief DisplayWindow::setCoordinates
- * @param newCoordinates
- */
+void DisplayWindow::setData(const QVector<QVector<Marker>> * pointerToData) {
+    data = pointerToData;
+}
 
-void DisplayWindow::setCoordinates(const QVector<Marker>& newCoordinates) {
-    coordinates = newCoordinates;
+void DisplayWindow::setCurrentStep(int index) {
+    currentStep = index;
 }
 
 const QVector<int>& DisplayWindow::getSelectedMarkerIndexes() const {
@@ -66,10 +71,6 @@ void DisplayWindow::removePickedIndex(int index) {
     selectedMarkerIndexes.remove(index);
     colorsAvailable.append(colorsAvailable.at(index));
     colorsAvailable.remove(index);
-    for(auto element : colorsAvailable) {
-        std::cout << element << "," << std::flush;
-    }
-    std::cout << std::endl;
     update();
 }
 
@@ -98,29 +99,50 @@ void DisplayWindow::resizeGL(int w, int h){}
 void DisplayWindow::paintGL()
 {
     qDebug() << "paintGL";
+    glPointSize(3.0);
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    glPointSize(3.0);
-    //int colorIndex = 7;
+    paintMarkers();
+    if(lineBeingDrawn) {
+        paintMarkerWithCross();
+    }
+    paintLinkedMarkers();
+    paintSelectedMarkers();
+    if(displayFormerSteps) {
+        paintFormerSteps();
+    }
+    paintAxes();
+    glFlush();
+}
+
+void DisplayWindow::paintMarkers() {
+    makeCurrent();
+    glBegin(GL_POINTS);
+    glColor3f(1.0, 1.0, 1.0);
+    for(auto marker : data->at(currentStep)) {
+        glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
+    }
+    glEnd();
+}
+
+void DisplayWindow::paintSelectedMarkers() {
+    makeCurrent();
     int colorIndex = 0;
     QColor *color;
     glBegin(GL_POINTS);
-    glColor3f(1.0, 1.0, 1.0);
-    for(auto marker : coordinates) {
-        glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
-    }
     for(auto index : selectedMarkerIndexes) {
         color = new QColor(Qt::GlobalColor(colorsAvailable.at(colorIndex)));
         glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
-        glVertex3f(coordinates.at(index).getX() / 1500, coordinates.at(index).getY() / 1500, coordinates.at(index).getZ() / 1500);
+        glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ() / 1500);
         delete color;
         colorIndex++;
-
     }
     glColor3f(1.0, 1.0, 1.0);
     glEnd();
-    //delete color;
+}
 
+void DisplayWindow::paintAxes() {
+    makeCurrent();
     glBegin(GL_LINES);
         glColor3f(1.0, 0.0, 0.0);
         glVertex3f(0.0, 0.0, 0.0);
@@ -136,8 +158,51 @@ void DisplayWindow::paintGL()
         glVertex3f(0.0, 0.0, 0.0);
         glVertex3f(0.0, 0.0, 1.0);
     glEnd();
+}
 
-    glFlush();
+void DisplayWindow::paintMarkerWithCross() {
+    makeCurrent();
+    glBegin(GL_LINES);
+        glVertex3f((getMarkerWithCross().getX() + 50) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ()) / 1500);
+        glVertex3f((getMarkerWithCross().getX() - 50) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ()) / 1500);
+        glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY() + 50) / 1500, (getMarkerWithCross().getZ()) / 1500);
+        glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY() - 50) / 1500, (getMarkerWithCross().getZ()) / 1500);
+        glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ() + 50) / 1500);
+        glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ() - 50) / 1500);
+    glEnd();
+}
+
+void DisplayWindow::paintFormerSteps() {
+    makeCurrent();
+    glPointSize(1.5);
+    int i = 0;
+    glBegin(GL_POINTS);
+    if(currentStep >= 10) {
+        i = currentStep - 10;
+    }
+    while(i < currentStep) {
+        for(auto marker : data->at(i)) {
+            glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
+        }
+        i++;
+    }
+    glEnd();
+}
+
+void DisplayWindow::paintLinkedMarkers() {
+    makeCurrent();
+    glBegin(GL_LINES);
+        for(int i = 0 ; i < linkedMarkersIndexes.size() - 1 ; i++) {
+            glVertex3f(data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getX() / 1500, data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getY() / 1500,
+                    data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getZ() / 1500);
+            glVertex3f(data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getX() / 1500, data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getY() / 1500,
+                    data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getZ() / 1500);
+        }
+    glEnd();
+}
+
+const Marker& DisplayWindow::getMarkerWithCross() const {
+    return data->at(currentStep).at(linkedMarkersIndexes.last()[0]);
 }
 
 /** Method that implements the mouse pressed event.
@@ -148,8 +213,11 @@ void DisplayWindow::paintGL()
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
-    if(event->modifiers() == Qt::CTRL && selectedMarkerIndexes.size() < 12) {
-        pickMarker();
+    if(selectMarkerMode) {
+        selectMarker();
+    }
+    else if(linkMarkerMode) {
+        linkMarkerLine();
     }
 }
 
@@ -162,13 +230,13 @@ void DisplayWindow::mouseMoveEvent(QMouseEvent *event) {
     moveCamera(event);
 }
 
-void DisplayWindow::pickMarker() {
+int DisplayWindow::pickMarker() {
     makeCurrent();
     unsigned char pixelRead[3];
     glDrawBuffer(GL_BACK);
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    for(auto marker : coordinates) {
+    for(auto marker : data->at(currentStep)) {
         glPointSize(3.0);
         glBegin(GL_POINTS);
             glColor3f(marker.getRedId() / 255.0, marker.getGreenId() / 255.0, marker.getBlueId() / 255.0);
@@ -177,12 +245,77 @@ void DisplayWindow::pickMarker() {
     }
     glFlush();
     glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
-    int index = (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
-    if(index != -1 && !isSelectedIndex(index)) {
+    return (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
+}
+
+void DisplayWindow::selectMarker() {
+    int index = pickMarker();
+    if(selectedMarkerIndexes.size() < 12 && index != -1 && !isSelectedIndex(index)) {
         selectedMarkerIndexes.append(index);
-        //emit markerPicked(index);
         emit markerPicked(index, colorsAvailable.at(selectedMarkerIndexes.size() - 1));
     }
+    update();
+}
+
+/*void DisplayWindow::linkMarkerLine() {
+    int index = pickMarker();
+    if(index == -1 || index == linkedMarkersIndexes.last()[0]) {
+        linkedMarkersIndexes.last()[0] = -1;
+        lineBeingDrawn = false;
+    }
+    else {
+        if(linkedMarkersIndexes.last()[0] != -1) {
+            linkedMarkersIndexes.last()[1] = index;
+            lineBeingDrawn = false;
+            linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
+        }
+        else {
+            linkedMarkersIndexes.last()[0] = index;
+            lineBeingDrawn = true;
+        }
+    }
+    update();
+}*/
+
+void DisplayWindow::linkMarkerLine() {
+    int index = pickMarker();
+    if(index == -1 || index == linkedMarkersIndexes.last()[0]) {
+        linkedMarkersIndexes.last()[0] = -1;
+        lineBeingDrawn = false;
+    }
+    else {
+        if(linkedMarkersIndexes.last()[0] != -1) {
+            linkedMarkersIndexes.last()[1] = index;
+            if(alreadyLinkedMarkers(linkedMarkersIndexes.last())) {
+                linkedMarkersIndexes.last()[0] = -1;
+                linkedMarkersIndexes.last()[1] = -1;
+            }
+            else {
+                linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
+            }
+            lineBeingDrawn = false;
+        }
+        else {
+            linkedMarkersIndexes.last()[0] = index;
+            lineBeingDrawn = true;
+        }
+    }
+    update();
+}
+
+bool DisplayWindow::alreadyLinkedMarkers(std::array<int, 2>& linkedMarkers) {
+    for(int i = 0 ; i < linkedMarkersIndexes.size() - 1 ; i++) {
+        if((linkedMarkers[0] == linkedMarkersIndexes.at(i)[0] && linkedMarkers[1] == linkedMarkersIndexes.at(i)[1]) ||
+            (linkedMarkers[0] == linkedMarkersIndexes.at(i)[1] && linkedMarkers[1] == linkedMarkersIndexes.at(i)[0])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void DisplayWindow::resetLinkedMarkersIndexes() {
+    linkedMarkersIndexes = QVector<std::array<int, 2>>();
+    linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
     update();
 }
 
@@ -224,4 +357,16 @@ void DisplayWindow::resetCamera() {
     makeCurrent();
     setModelView();
     update();
+}
+
+void DisplayWindow::setLinkMarkerMode(bool boolean) {
+    linkMarkerMode = boolean;
+}
+
+void DisplayWindow::setSelectMarkerMode(bool boolean) {
+    selectMarkerMode = boolean;
+}
+
+void DisplayWindow::setDisplayFormerSteps(bool boolean) {
+    displayFormerSteps = boolean;
 }

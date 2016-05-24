@@ -77,7 +77,7 @@ void CoordinatesWindow::removeLineCoordinates() {
     //updateColors(i);
 }
 
-void CoordinatesWindow::updateColors(int index) {
+/*void CoordinatesWindow::updateColors(int index) {
     QPalette palette;
     colorIndex = 7 + index;
     std::cout << index << std::endl;
@@ -86,5 +86,5 @@ void CoordinatesWindow::updateColors(int index) {
         xyzVector.at(i).at(3)->setPalette(palette);
         colorIndex++;
     }
-}
+}*/
 

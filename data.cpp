@@ -43,6 +43,10 @@ void Data::loadData(QString& fileName) {
     fichier.close();
 }
 
+const QVector<QVector<Marker>>* Data::getDataCoordinates() {
+    return &dataCoordinates;
+}
+
 /** Method that returns a QVector of a point contained in the storing data.
  * @brief Data::get1Vector
  * @param index
