@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QComboBox>
 #include "displaywindow.h"
 #include "data.h"
 #include "coordinateswindow.h"
@@ -34,6 +35,8 @@ public slots:
     void changeChoice2();
     void selectOrLinkMode();
     void enableDisplayFormerSteps();
+    void enableDisplayFurtherSteps();
+    void choosePointsLinesFormerSteps();
 
 signals:
     void stopTimer();
@@ -52,8 +55,13 @@ private:
     QPushButton *selectModeButton;
     QPushButton *linkModeButton;
     QPushButton *formerSteps;
+    QPushButton *furtherSteps;
     QRadioButton *displayChoice1;
     QRadioButton *displayChoice2;
+    QRadioButton *formerStepsLine;
+    QRadioButton *formerStepsPoints;
+    QComboBox *numberOfFormerSteps;
+    QComboBox *numberOfFurtherSteps;
     QTimer *timer;
 };
 

@@ -14,6 +14,9 @@ DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
     linkMarkerMode = false;
     selectMarkerMode = false;
     displayFormerSteps = false;
+    displayFurtherSteps = false;
+    formerStepsPoints = false;
+    lineBeingDrawn = false;
     linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
     for(int i = 7 ; i < 19 ; i++) {
         colorsAvailable.append(i);
@@ -111,6 +114,9 @@ void DisplayWindow::paintGL()
     if(displayFormerSteps) {
         paintFormerSteps();
     }
+    if(displayFurtherSteps) {
+        paintFurtherSteps();
+    }
     paintAxes();
     glFlush();
 }
@@ -172,13 +178,13 @@ void DisplayWindow::paintMarkerWithCross() {
     glEnd();
 }
 
-void DisplayWindow::paintFormerSteps() {
+/*void DisplayWindow::paintFormerSteps() {
     makeCurrent();
     glPointSize(1.5);
     int i = 0;
     glBegin(GL_POINTS);
-    if(currentStep >= 10) {
-        i = currentStep - 10;
+    if(currentStep >= numberOfStepsDisplayed) {
+        i = currentStep - numberOfStepsDisplayed;
     }
     while(i < currentStep) {
         for(auto marker : data->at(i)) {
@@ -187,6 +193,74 @@ void DisplayWindow::paintFormerSteps() {
         i++;
     }
     glEnd();
+}*/
+
+void DisplayWindow::paintFormerSteps() {
+    makeCurrent();
+    glPointSize(1.5);
+    int j = 0;
+    int colorIndex = 0;
+    QColor *color;
+    for(int i = 0 ; i < data->last().size() ; i++) {
+        if(currentStep >= numberOfFormerStepsDisplayed) {
+            j = currentStep - numberOfFormerStepsDisplayed;
+        }
+        else {
+            j = 0;
+        }
+        if(formerStepsPoints) {
+            glBegin(GL_POINTS);
+        }
+        else {
+            glBegin(GL_LINE_STRIP);
+        }
+        colorIndex = selectedMarkerIndexes.indexOf(i);
+        if(colorIndex != -1) {
+            color = new QColor(Qt::GlobalColor(colorsAvailable.at(colorIndex)));
+            glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
+            delete color;
+            colorIndex++;
+            while(j <= currentStep) {
+                glVertex3f(data->at(j).at(i).getX() / 1500, data->at(j).at(i).getY() / 1500, data->at(j).at(i).getZ() / 1500);
+                j++;
+            }
+            glColor3f(1.0, 1.0, 1.0);
+        }
+        else{
+            while(j <= currentStep) {
+                glVertex3f(data->at(j).at(i).getX() / 1500, data->at(j).at(i).getY() / 1500, data->at(j).at(i).getZ() / 1500);
+                j++;
+            }
+        }
+        glEnd();
+    }
+}
+
+void DisplayWindow::paintFurtherSteps() {
+    makeCurrent();
+    glPointSize(1.5);
+    int colorIndex = 0;
+    int indexSelected = 0;
+    QColor *color;
+    int j = 0;
+    int limitOfStepsDisplayed = currentStep + numberOfFurtherStepsDisplayed;
+    if(data->size() < limitOfStepsDisplayed) {
+        limitOfStepsDisplayed = data->size();
+    }
+    for(int i = 0; i < selectedMarkerIndexes.size() ; i++) {
+        indexSelected = selectedMarkerIndexes.at(i);
+        j = currentStep;
+        color = new QColor(Qt::GlobalColor(colorsAvailable.at(colorIndex)));
+        glBegin(GL_LINE_STRIP);
+        glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
+        delete color;
+        colorIndex++;
+        while(j < limitOfStepsDisplayed) {
+            glVertex3f(data->at(j).at(indexSelected).getX() / 1500, data->at(j).at(indexSelected).getY() / 1500, data->at(j).at(indexSelected).getZ() / 1500);
+            j++;
+        }
+        glEnd();
+    }
 }
 
 void DisplayWindow::paintLinkedMarkers() {
@@ -250,7 +324,7 @@ int DisplayWindow::pickMarker() {
 
 void DisplayWindow::selectMarker() {
     int index = pickMarker();
-    if(selectedMarkerIndexes.size() < 12 && index != -1 && !isSelectedIndex(index)) {
+    if(selectedMarkerIndexes.size() < 12 && index != -1 && selectedMarkerIndexes.indexOf(index) == -1) {
         selectedMarkerIndexes.append(index);
         emit markerPicked(index, colorsAvailable.at(selectedMarkerIndexes.size() - 1));
     }
@@ -319,15 +393,6 @@ void DisplayWindow::resetLinkedMarkersIndexes() {
     update();
 }
 
-bool DisplayWindow::isSelectedIndex(int index) {
-    for(auto element : selectedMarkerIndexes) {
-        if(element == index) {
-            return true;
-        }
-    }
-    return false;
-}
-
 /** Method that implements the move of the camera.
  * @brief DisplayWindow::moveCamera
  * @param event
@@ -369,4 +434,25 @@ void DisplayWindow::setSelectMarkerMode(bool boolean) {
 
 void DisplayWindow::setDisplayFormerSteps(bool boolean) {
     displayFormerSteps = boolean;
+    update();
+}
+
+void DisplayWindow::setNumberOfFormerStepsDisplayed(int number) {
+    numberOfFormerStepsDisplayed = number;
+    update();
+}
+
+void DisplayWindow::setDisplayFurtherSteps(bool boolean) {
+    displayFurtherSteps = boolean;
+    update();
+}
+
+void DisplayWindow::setNumberOfFurtherStepsDisplayed(int number) {
+    numberOfFurtherStepsDisplayed = number;
+    update();
+}
+
+void DisplayWindow::setFormerStepsPoints(bool boolean) {
+    formerStepsPoints = boolean;
+    update();
 }

@@ -21,10 +21,14 @@ private:
     int currentStep;
     int mouseXStartPosition;
     int mouseYStartPosition;
+    int numberOfFormerStepsDisplayed;
+    int numberOfFurtherStepsDisplayed;
     bool displayFormerSteps;
+    bool displayFurtherSteps;
     bool linkMarkerMode;
     bool selectMarkerMode;
     bool lineBeingDrawn;
+    bool formerStepsPoints;
 
 public:
     DisplayWindow(QWidget *parent = Q_NULLPTR);
@@ -39,6 +43,8 @@ public:
     void setLinkMarkerMode(bool boolean);
     void setSelectMarkerMode(bool boolean);
     void setDisplayFormerSteps(bool boolean);
+    void setDisplayFurtherSteps(bool boolean);
+    void setFormerStepsPoints(bool boolean);
     const Marker& getMarkerWithCross() const;
     bool alreadyLinkedMarkers(std::array<int, 2>& linkedMarkers);
     //void setCoordinates(const QVector<Marker>& newCoordinates);
@@ -47,6 +53,8 @@ public slots:
     void resetCamera();
     void removePickedIndex(int index);
     void resetLinkedMarkersIndexes();
+    void setNumberOfFormerStepsDisplayed(int number);
+    void setNumberOfFurtherStepsDisplayed(int number);
 
 signals:
     //void markerPicked(int index);
@@ -61,11 +69,11 @@ protected:
     void paintSelectedMarkers();
     void paintLinkedMarkers();
     void paintFormerSteps();
+    void paintFurtherSteps();
     void paintMarkerWithCross();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     int pickMarker();
-    bool isSelectedIndex(int index);
     void moveCamera(QMouseEvent *event);
 };
 

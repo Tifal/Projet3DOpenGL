@@ -5,20 +5,28 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 {
     colorIndex = 7;
     layout = new QGridLayout(this);
+    setWindowTitle("marker coordinates window");
 
+    //QLabel *subtitleDistance = new QLabel("distance between markers", this);
+    //subtitleDistance->setMinimumHeight(50);
+    //distanceMarker1 = new QComboBox(this);
+    //distanceMarker2 = new QComboBox(this);
+
+    QLabel *subTitleCoordinates = new QLabel("marker coordinates", this);
+    subTitleCoordinates->setMinimumHeight(50);
     QLabel *headerX = new QLabel("x", this);
-    headerX->setAlignment(Qt::AlignCenter);
     QLabel *headerY = new QLabel("y", this);
-    headerY->setAlignment(Qt::AlignCenter);
     QLabel *headerZ = new QLabel("z", this);
-    headerZ->setAlignment(Qt::AlignCenter);
     QLabel *headerColor = new QLabel("color", this);
-    headerColor->setAlignment(Qt::AlignCenter);
 
-    layout->addWidget(headerX, 0, 1);
-    layout->addWidget(headerY, 0, 2);
-    layout->addWidget(headerZ, 0, 3);
-    layout->addWidget(headerColor, 0, 4);
+    //layout->addWidget(subtitleDistance, 0, 0, 1, 6, Qt::AlignCenter);
+    //layout->addWidget(distanceMarker1, 1, 0, 1, 3);
+    //layout->addWidget(distanceMarker2, 1, 3, 1, 3);
+    layout->addWidget(subTitleCoordinates, 2, 0, 1, 6, Qt::AlignCenter);
+    layout->addWidget(headerX, 3, 1, Qt::AlignCenter);
+    layout->addWidget(headerY, 3, 2, Qt::AlignCenter);
+    layout->addWidget(headerZ, 3, 3, Qt::AlignCenter);
+    layout->addWidget(headerColor, 3, 4, Qt::AlignCenter);
     layout->setSpacing(0.0);
 
     this->setLayout(layout);
@@ -34,6 +42,9 @@ void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
     int row = layout->rowCount();
     xyzVector.append(QVector<QLineEdit*>());
     QPalette palette;
+    labelVector.append(new QLabel("selected marker number " + QString::number(xyzVector.size()), this));
+    labelVector.last()->setMinimumWidth(140);
+    layout->addWidget(labelVector.last(), row, 0);
     for(int i = 1 ; i < 5 ; i++) {
         xyzVector.last().append(new QLineEdit(this));
         xyzVector.last().last()->setReadOnly(true);
@@ -66,6 +77,10 @@ void CoordinatesWindow::removeLineCoordinates() {
         i++;
     }
     emit lineRemoved(i);
+    layout->removeWidget(labelVector.at(i));
+    delete labelVector.at(i);
+    labelVector.remove(i);
+    updateLabelNumber(i);
     for(auto textField : xyzVector.at(i)) {
         layout->removeWidget(textField);
         delete textField;
@@ -75,6 +90,13 @@ void CoordinatesWindow::removeLineCoordinates() {
     delete buttonVector.at(i);
     buttonVector.remove(i);
     //updateColors(i);
+}
+
+void CoordinatesWindow::updateLabelNumber(int index) {
+    while(index < labelVector.size()) {
+        labelVector.at(index)->setText("selected marker number " + QString::number(index + 1));
+        index++;
+    }
 }
 
 /*void CoordinatesWindow::updateColors(int index) {

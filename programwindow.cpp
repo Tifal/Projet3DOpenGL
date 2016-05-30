@@ -56,14 +56,26 @@ ProgramWindow::ProgramWindow() : QWidget()
     linkModeButton = new QPushButton("link markers",this);
     QPushButton *eraseLinks = new QPushButton("erase links", this);
     formerSteps = new QPushButton("display former steps", this);
+    numberOfFormerSteps = new QComboBox(this);
+    formerStepsLine = new QRadioButton("lines", this);
+    formerStepsPoints = new QRadioButton("points", this);
+    formerStepsLine->setChecked(true);
+    furtherSteps = new QPushButton("display further steps", this);
+    numberOfFurtherSteps = new QComboBox(this);
 
     layout->addWidget(selectModeButton, 7,0);
     layout->addWidget(linkModeButton, 7, 1);
     layout->addWidget(eraseLinks, 7, 2);
-    layout->addWidget(formerSteps, 8, 0);
+    layout->addWidget(formerSteps, 8, 0, 2, 1);
+    layout->addWidget(numberOfFormerSteps, 8, 1, 2, 1);
+    layout->addWidget(formerStepsLine, 8, 2);
+    layout->addWidget(formerStepsPoints, 9, 2);
+    layout->addWidget(furtherSteps, 10, 0);
+    layout->addWidget(numberOfFurtherSteps, 10, 1);
     selectModeButton->setCheckable(true);
     linkModeButton->setCheckable(true);
     formerSteps->setCheckable(true);
+    furtherSteps->setCheckable(true);
 
     setLayout(layout);
 
@@ -74,10 +86,15 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
     connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
     connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
-    connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
     connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
     connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillWindowCoordinates(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
+    connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
+    connect(numberOfFormerSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFormerStepsDisplayed(int)));
+    connect(formerStepsLine, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
+    connect(formerStepsPoints, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
+    connect(furtherSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFurtherSteps()));
+    connect(numberOfFurtherSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFurtherStepsDisplayed(int)));
 
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
     connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
@@ -87,6 +104,13 @@ ProgramWindow::ProgramWindow() : QWidget()
     //screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
+    for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
+        numberOfFormerSteps->addItem(QString::number(i));
+        numberOfFurtherSteps->addItem(QString::number(i));
+    }
+    numberOfFormerSteps->setCurrentIndex(10);
+    //screen->setNumberOfFormerStepsDisplayed(10);
+    numberOfFurtherSteps->setCurrentIndex(10);
 
     filewindow=new FileWindow;
 
@@ -237,5 +261,22 @@ void ProgramWindow::enableDisplayFormerSteps() {
     else {
         screen->setDisplayFormerSteps(false);
     }
-    screen->update();
+}
+
+void ProgramWindow::choosePointsLinesFormerSteps() {
+     if(sender() == (QObject*)formerStepsPoints) {
+         screen->setFormerStepsPoints(true);
+     }
+     else {
+         screen->setFormerStepsPoints(false);
+     }
+}
+
+void ProgramWindow::enableDisplayFurtherSteps() {
+    if(furtherSteps->isChecked()) {
+        screen->setDisplayFurtherSteps(true);
+    }
+    else {
+        screen->setDisplayFurtherSteps(false);
+    }
 }
