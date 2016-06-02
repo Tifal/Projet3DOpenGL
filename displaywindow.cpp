@@ -13,11 +13,15 @@ DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
     currentStep = 0;
     linkMarkerMode = false;
     selectMarkerMode = false;
+   // swapMode = true;
     displayFormerSteps = false;
     displayFurtherSteps = false;
     formerStepsPoints = false;
     lineBeingDrawn = false;
     linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
+    for(auto& element : markersToBeSwapedIndexes) {
+        element = -1;
+    }
     for(int i = 7 ; i < 19 ; i++) {
         colorsAvailable.append(i);
     }
@@ -70,6 +74,10 @@ const QVector<int>& DisplayWindow::getSelectedMarkerIndexes() const {
     return selectedMarkerIndexes;
 }
 
+const std::array<int, 2>& DisplayWindow::getMarkersToBeSwaped() const {
+    return markersToBeSwapedIndexes;
+}
+
 void DisplayWindow::removePickedIndex(int index) {
     selectedMarkerIndexes.remove(index);
     colorsAvailable.append(colorsAvailable.at(index));
@@ -119,6 +127,8 @@ void DisplayWindow::paintGL()
     }
     paintAxes();
     glFlush();
+    if(markersToBeSwapedIndexes.at(0)!=-1&&markersToBeSwapedIndexes.at(1)!=-1)
+    std::cout << "display window" << data->at(currentStep).at(markersToBeSwapedIndexes.at(0)).getRedId() << std::endl;
 }
 
 void DisplayWindow::paintMarkers() {
@@ -177,23 +187,6 @@ void DisplayWindow::paintMarkerWithCross() {
         glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ() - 50) / 1500);
     glEnd();
 }
-
-/*void DisplayWindow::paintFormerSteps() {
-    makeCurrent();
-    glPointSize(1.5);
-    int i = 0;
-    glBegin(GL_POINTS);
-    if(currentStep >= numberOfStepsDisplayed) {
-        i = currentStep - numberOfStepsDisplayed;
-    }
-    while(i < currentStep) {
-        for(auto marker : data->at(i)) {
-            glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
-        }
-        i++;
-    }
-    glEnd();
-}*/
 
 void DisplayWindow::paintFormerSteps() {
     makeCurrent();
@@ -293,6 +286,9 @@ void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     else if(linkMarkerMode) {
         linkMarkerLine();
     }
+    else if(swapMode) {
+        swapMarkers();
+    }
 }
 
 /** Method that implements the mouse moved event.
@@ -319,6 +315,10 @@ int DisplayWindow::pickMarker() {
     }
     glFlush();
     glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
+    update();
+    if(markersToBeSwapedIndexes.at(0)!=-1&&markersToBeSwapedIndexes.at(1)!=-1){
+    std::cout << "display pickmarker" << data->at(currentStep).at(markersToBeSwapedIndexes.at(0)).getRedId() << " " << (int) pixelRead[0] << std::endl;
+    }
     return (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
 }
 
@@ -374,6 +374,9 @@ void DisplayWindow::linkMarkerLine() {
             lineBeingDrawn = true;
         }
     }
+    for(auto element : linkedMarkersIndexes) {
+        std::cout << element[0] << ";" << element[1] << std::endl;
+    }
     update();
 }
 
@@ -391,6 +394,59 @@ void DisplayWindow::resetLinkedMarkersIndexes() {
     linkedMarkersIndexes = QVector<std::array<int, 2>>();
     linkedMarkersIndexes.append(std::array<int, 2>({-1, -1}));
     update();
+}
+
+/*void DisplayWindow::swapMarkers() {
+    int index = pickMarker();
+    if(index == -1 || index == markersToBeSwapedIndexes.at(0)) {
+        markersToBeSwapedIndexes.at(0) = -1;
+    }
+    else {
+        if(markersToBeSwapedIndexes.at(0) == -1) {
+            markersToBeSwapedIndexes[0] = index;
+        }
+        else {
+            markersToBeSwapedIndexes[1] = index;
+        }
+    }
+    for(auto element : markersToBeSwapedIndexes) {
+        std::cout << element << ";" << std::flush;
+    }
+    std::cout << std::endl;
+}*/
+
+void DisplayWindow::swapMarkers() {
+    int index = pickMarker();
+    if(markersToBeSwapedIndexes.at(0) == -1){
+        markersToBeSwapedIndexes.at(0)=index;
+    }
+    else {
+        if(markersToBeSwapedIndexes.at(1) == -1) {
+            if(index == markersToBeSwapedIndexes.at(0) || index == -1) {
+                markersToBeSwapedIndexes.at(0) = -1;
+            }
+            else {
+                markersToBeSwapedIndexes.at(1) = index;
+            }
+        }
+        else {
+            if(index == markersToBeSwapedIndexes.at(1)) {
+                markersToBeSwapedIndexes.at(1) = -1;
+            }
+            else if(index == markersToBeSwapedIndexes.at(0)){
+                markersToBeSwapedIndexes.at(0)=markersToBeSwapedIndexes.at(1);
+                markersToBeSwapedIndexes.at(1)=-1;
+
+            }
+            else {
+                markersToBeSwapedIndexes.at(1) = index;
+            }
+        }
+    }
+    for(auto element : markersToBeSwapedIndexes) {
+        std::cout << element << ";" << std::flush;
+    }
+    std::cout << std::endl;
 }
 
 /** Method that implements the move of the camera.

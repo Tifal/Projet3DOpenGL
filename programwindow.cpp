@@ -280,3 +280,11 @@ void ProgramWindow::enableDisplayFurtherSteps() {
         screen->setDisplayFurtherSteps(false);
     }
 }
+
+void ProgramWindow::keyPressEvent(QKeyEvent *event) {
+    if(event->key() == Qt::Key_Enter) {
+        data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
+        std::cout << "Program marker 1 red =" << data.get1Marker(slider->value(),screen->getMarkersToBeSwaped().at(0)).getRedId() << std::endl;
+    }
+    screen->update();
+}

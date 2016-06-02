@@ -18,6 +18,7 @@ private:
     QVector<int> selectedMarkerIndexes;
     QVector<int> colorsAvailable;
     QVector<std::array<int, 2>> linkedMarkersIndexes;
+    std::array<int, 2> markersToBeSwapedIndexes;
     int currentStep;
     int mouseXStartPosition;
     int mouseYStartPosition;
@@ -27,6 +28,7 @@ private:
     bool displayFurtherSteps;
     bool linkMarkerMode;
     bool selectMarkerMode;
+    bool swapMode;
     bool lineBeingDrawn;
     bool formerStepsPoints;
 
@@ -38,8 +40,10 @@ public:
     void setData(const QVector<QVector<Marker>> * pointerToData);
     void setCurrentStep(int index);
     const QVector<int>& getSelectedMarkerIndexes() const;
+    const std::array<int, 2>& getMarkersToBeSwaped() const;
     void selectMarker();
     void linkMarkerLine();
+    void swapMarkers();
     void setLinkMarkerMode(bool boolean);
     void setSelectMarkerMode(bool boolean);
     void setDisplayFormerSteps(bool boolean);

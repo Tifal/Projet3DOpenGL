@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QComboBox>
+#include <QKeyEvent>
 #include "displaywindow.h"
 #include "data.h"
 #include "coordinateswindow.h"
@@ -22,6 +23,9 @@ public:
     ProgramWindow();
     void configureScreen();
     void updateWindowCoordinates();
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
 
 public slots:
     void changeStep(int index);

@@ -22,6 +22,7 @@ public:
     const QVector<Marker>& get1Vector(int index) const;
     const Marker& get1Marker(int step, int index) const;
     int getDataCoordinatesSize() const;
+    void swapMarkersData(const std::array<int, 2>& markersIndexes, int step);
 };
 
 #endif // DATA_H
