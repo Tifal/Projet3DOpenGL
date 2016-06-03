@@ -20,6 +20,7 @@ public:
     void addLineCoordinates(const Marker& marker, int color);
     void updateCoordinates(QVector<Marker>& markerVector);
     void updateLabelNumber(int index);
+    void swapCoordinates(const std::array<int, 2>& markersToBeSwaped);
     //void updateColors(int index);
 
 public slots:

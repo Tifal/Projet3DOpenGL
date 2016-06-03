@@ -75,6 +75,7 @@ protected:
     void paintFormerSteps();
     void paintFurtherSteps();
     void paintMarkerWithCross();
+    void paintMarkersWithRedCross();
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     int pickMarker();

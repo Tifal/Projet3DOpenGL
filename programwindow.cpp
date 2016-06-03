@@ -282,9 +282,14 @@ void ProgramWindow::enableDisplayFurtherSteps() {
 }
 
 void ProgramWindow::keyPressEvent(QKeyEvent *event) {
-    if(event->key() == Qt::Key_Enter) {
+    std::array<int, 2> selectedMarkersToBeSwaped;
+    selectedMarkersToBeSwaped[0] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(0));
+    selectedMarkersToBeSwaped[1] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(1));
+    if(event->key() == Qt::Key_Enter) { 
         data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
-        std::cout << "Program marker 1 red =" << data.get1Marker(slider->value(),screen->getMarkersToBeSwaped().at(0)).getRedId() << std::endl;
+        if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
+            coordinatesWindow->swapCoordinates(selectedMarkersToBeSwaped);
+        }
     }
     screen->update();
 }

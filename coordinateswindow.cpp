@@ -99,6 +99,16 @@ void CoordinatesWindow::updateLabelNumber(int index) {
     }
 }
 
+void CoordinatesWindow::swapCoordinates(const std::array<int, 2>& markersToBeSwaped) {
+    std::array<QString, 3> temp({xyzVector.at(markersToBeSwaped.at(0)).at(0)->text(), xyzVector.at(markersToBeSwaped.at(0)).at(1)->text(),
+                                xyzVector.at(markersToBeSwaped.at(0)).at(2)->text()});
+    for(int i = 0 ; i < 3 ; i++) {
+        xyzVector.at(markersToBeSwaped.at(0)).at(i)->setText(xyzVector.at(markersToBeSwaped.at(1)).at(i)->text());
+        xyzVector.at(markersToBeSwaped.at(1)).at(i)->setText(temp.at(i));
+    }
+
+}
+
 /*void CoordinatesWindow::updateColors(int index) {
     QPalette palette;
     colorIndex = 7 + index;

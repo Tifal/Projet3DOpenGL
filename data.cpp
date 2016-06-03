@@ -71,23 +71,8 @@ int Data::getDataCoordinatesSize() const {
 }
 
 void Data::swapMarkersData(const std::array<int, 2>& markersIndexes, int step) {
-        std::cout << "couleur marqueur 1" << std::endl;
-        std::cout << dataCoordinates.at(step).at(markersIndexes.at(0)).getRedId() << " " << std::flush;
-
-        std::cout << "couleur marqueur 2" << std::endl;
-        std::cout << dataCoordinates.at(step).at(markersIndexes.at(1)).getRedId() << " " << std::flush;
-
-    std::cout << std::endl;
-    Marker temp = dataCoordinates[step][markersIndexes.at(0)];
-    dataCoordinates[step][markersIndexes.at(0)]= dataCoordinates[step][markersIndexes.at(1)];
+    Marker temp(markersIndexes[1] + 1, dataCoordinates[step][markersIndexes.at(0)]);
+    dataCoordinates[step][markersIndexes.at(0)] = Marker(markersIndexes[0] + 1, dataCoordinates[step][markersIndexes.at(1)]);
     dataCoordinates[step][markersIndexes.at(1)] = temp;
-
-    std::cout << "couleur marqueur 1" << std::endl;
-    std::cout << dataCoordinates.at(step).at(markersIndexes.at(0)).getRedId() << " " << std::flush;
-
-    std::cout << "couleur marqueur 2" << std::endl;
-    std::cout << dataCoordinates.at(step).at(markersIndexes.at(1)).getRedId() << " " << std::flush;
-    //std::cout << dataCoordinates.at(step).at(markersIndexes.at(0)).getX() << " " << std::flush;
-    //std::cout << dataCoordinates.at(step).at(markersIndexes.at(1)).getX() << " " << std::flush;
 }
 

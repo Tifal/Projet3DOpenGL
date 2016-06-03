@@ -125,10 +125,9 @@ void DisplayWindow::paintGL()
     if(displayFurtherSteps) {
         paintFurtherSteps();
     }
+    paintMarkersWithRedCross();
     paintAxes();
     glFlush();
-    if(markersToBeSwapedIndexes.at(0)!=-1&&markersToBeSwapedIndexes.at(1)!=-1)
-    std::cout << "display window" << data->at(currentStep).at(markersToBeSwapedIndexes.at(0)).getRedId() << std::endl;
 }
 
 void DisplayWindow::paintMarkers() {
@@ -185,6 +184,23 @@ void DisplayWindow::paintMarkerWithCross() {
         glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY() - 50) / 1500, (getMarkerWithCross().getZ()) / 1500);
         glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ() + 50) / 1500);
         glVertex3f((getMarkerWithCross().getX()) / 1500, (getMarkerWithCross().getY()) / 1500, (getMarkerWithCross().getZ() - 50) / 1500);
+    glEnd();
+}
+
+void DisplayWindow::paintMarkersWithRedCross() {
+    makeCurrent();
+    glBegin(GL_LINES);
+    glColor3f(1.0, 0.0, 0.0);
+    for(auto index : markersToBeSwapedIndexes) {
+        if(index != -1) {
+            glVertex3f((data->at(currentStep).at(index).getX() + 50) /1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ()/ 1500);
+            glVertex3f((data->at(currentStep).at(index).getX() - 50) /1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ()/ 1500);
+            glVertex3f(data->at(currentStep).at(index).getX() /1500, (data->at(currentStep).at(index).getY() + 50) / 1500, data->at(currentStep).at(index).getZ()/ 1500);
+            glVertex3f(data->at(currentStep).at(index).getX() /1500, (data->at(currentStep).at(index).getY() - 50) / 1500, data->at(currentStep).at(index).getZ()/ 1500);
+            glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, (data->at(currentStep).at(index).getZ() + 50) / 1500);
+            glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, (data->at(currentStep).at(index).getZ() - 50) / 1500);
+        }
+    }
     glEnd();
 }
 
@@ -316,9 +332,6 @@ int DisplayWindow::pickMarker() {
     glFlush();
     glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
     update();
-    if(markersToBeSwapedIndexes.at(0)!=-1&&markersToBeSwapedIndexes.at(1)!=-1){
-    std::cout << "display pickmarker" << data->at(currentStep).at(markersToBeSwapedIndexes.at(0)).getRedId() << " " << (int) pixelRead[0] << std::endl;
-    }
     return (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
 }
 
@@ -443,6 +456,7 @@ void DisplayWindow::swapMarkers() {
             }
         }
     }
+    update();
     for(auto element : markersToBeSwapedIndexes) {
         std::cout << element << ";" << std::flush;
     }
