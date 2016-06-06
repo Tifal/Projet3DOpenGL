@@ -14,6 +14,7 @@
 #include "data.h"
 #include "coordinateswindow.h"
 #include "filewindow.h"
+#include "swapwindow.h"
 
 class ProgramWindow : public QWidget
 {
@@ -29,7 +30,7 @@ protected:
 
 public slots:
     void changeStep(int index);
-    void fillWindowCoordinates(int index, int color);
+    void fillCoordinatesSwapWindows(int index, int color);
     void demoPlaying();
     void startDemo();
     void pauseDemo();
@@ -50,8 +51,10 @@ private:
     DisplayWindow *screen;
     CoordinatesWindow *coordinatesWindow;
     FileWindow *filewindow;
+    SwapWindow *swapWindow;
     Data data;
     QLabel *label;
+    QLabel *swapLabel;
     QPushButton *demoButton;
     QPushButton *pauseButton;
     QPushButton *stopButton;
@@ -66,6 +69,7 @@ private:
     QRadioButton *formerStepsPoints;
     QComboBox *numberOfFormerSteps;
     QComboBox *numberOfFurtherSteps;
+    QComboBox *numberOfSwapedSteps;
     QTimer *timer;
 };
 

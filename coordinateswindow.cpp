@@ -3,7 +3,7 @@
 
 CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 {
-    colorIndex = 7;
+    //colorIndex = 7;
     layout = new QGridLayout(this);
     setWindowTitle("marker coordinates window");
 

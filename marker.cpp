@@ -47,3 +47,4 @@ int Marker::getGreenId() const {
 int Marker::getBlueId() const {
     return blueId;
 }
+

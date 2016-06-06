@@ -43,7 +43,7 @@ void Data::loadData(QString& fileName) {
     fichier.close();
 }
 
-const QVector<QVector<Marker>>* Data::getDataCoordinates() {
+const QVector<QVector<Marker>>* Data::getDataCoordinates() const {
     return &dataCoordinates;
 }
 

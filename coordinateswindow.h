@@ -36,7 +36,7 @@ private:
     QVector<QVector<QLineEdit*>> xyzVector;
     QComboBox *distanceMarker1;
     QComboBox *distanceMarker2;
-    int colorIndex;
+    //int colorIndex;
 };
 
 #endif // COORDINATESWINDOW_H

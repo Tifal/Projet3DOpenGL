@@ -18,7 +18,7 @@ public:
     void displayData() const;
     void loadData(QString& fileName);
     //const QVector<float>& get1Vector(int index);
-    const QVector<QVector<Marker>>* getDataCoordinates();
+    const QVector<QVector<Marker>>* getDataCoordinates() const;
     const QVector<Marker>& get1Vector(int index) const;
     const Marker& get1Marker(int step, int index) const;
     int getDataCoordinatesSize() const;

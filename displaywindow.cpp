@@ -264,6 +264,7 @@ void DisplayWindow::paintFurtherSteps() {
         glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
         delete color;
         colorIndex++;
+        //rajouter = ?
         while(j < limitOfStepsDisplayed) {
             glVertex3f(data->at(j).at(indexSelected).getX() / 1500, data->at(j).at(indexSelected).getY() / 1500, data->at(j).at(indexSelected).getZ() / 1500);
             j++;

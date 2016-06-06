@@ -22,6 +22,8 @@ ProgramWindow::ProgramWindow() : QWidget()
     label->setAlignment(Qt::AlignCenter);
     label->setMaximumHeight(30);
 
+    swapLabel = new QLabel("Numbers of furthers steps to be swapped",this);
+
     demoButton = new QPushButton("Start demo", this);
     demoButton->setIcon(QIcon("icons/Gtk-media-play-ltr.svg"));
     stopButton = new QPushButton("Stop", this);
@@ -33,6 +35,7 @@ ProgramWindow::ProgramWindow() : QWidget()
 
 
     coordinatesWindow = new CoordinatesWindow;
+    swapWindow = new SwapWindow;
 
     QPushButton *resetButton = new QPushButton("Reset Camera", this);
 
@@ -62,7 +65,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     formerStepsLine->setChecked(true);
     furtherSteps = new QPushButton("display further steps", this);
     numberOfFurtherSteps = new QComboBox(this);
-
+    numberOfSwapedSteps = new QComboBox(this);
     layout->addWidget(selectModeButton, 7,0);
     layout->addWidget(linkModeButton, 7, 1);
     layout->addWidget(eraseLinks, 7, 2);
@@ -72,6 +75,8 @@ ProgramWindow::ProgramWindow() : QWidget()
     layout->addWidget(formerStepsPoints, 9, 2);
     layout->addWidget(furtherSteps, 10, 0);
     layout->addWidget(numberOfFurtherSteps, 10, 1);
+    layout->addWidget(swapLabel,11,0);
+    layout->addWidget(numberOfSwapedSteps,11,1);
     selectModeButton->setCheckable(true);
     linkModeButton->setCheckable(true);
     formerSteps->setCheckable(true);
@@ -87,7 +92,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
     connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
     connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
-    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillWindowCoordinates(int, int)));
+    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesSwapWindows(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
     connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
     connect(numberOfFormerSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFormerStepsDisplayed(int)));
@@ -95,11 +100,14 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(formerStepsPoints, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
     connect(furtherSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFurtherSteps()));
     connect(numberOfFurtherSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFurtherStepsDisplayed(int)));
-
+    //connect(numberOfFurtherSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
+    connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
     connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
     connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
     screen->setData(data.getDataCoordinates());
+    swapWindow->setData(data.getDataCoordinates());
+    swapWindow->setNumberOfFurtherSteps(10);
 
     //screen->setCoordinates(data.get1Vector(0));
     slider->setMinimum(0);
@@ -107,15 +115,19 @@ ProgramWindow::ProgramWindow() : QWidget()
     for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
         numberOfFormerSteps->addItem(QString::number(i));
         numberOfFurtherSteps->addItem(QString::number(i));
+        numberOfSwapedSteps->addItem(QString::number(i));
     }
     numberOfFormerSteps->setCurrentIndex(10);
     //screen->setNumberOfFormerStepsDisplayed(10);
     numberOfFurtherSteps->setCurrentIndex(10);
 
+    numberOfSwapedSteps->setCurrentIndex(10);
+
     filewindow=new FileWindow;
 
     show();
     coordinatesWindow->show();
+    swapWindow->show();
 }
 
 /** Method that initializes the screen.
@@ -139,12 +151,26 @@ void ProgramWindow::changeStep(int index) {
     screen->setCurrentStep(index);
     label->setText("Step number : " + QString::number(index + 1));
     updateWindowCoordinates();
+    swapWindow->setCurrentStep(index);
+    swapWindow->updateCoordinates();
+    if(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
+    while(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
+       numberOfSwapedSteps->removeItem(numberOfSwapedSteps->count()-1);
+    }
+    }
+    else if(numberOfSwapedSteps->count()<data.getDataCoordinatesSize()-slider->value()){
+        while(numberOfSwapedSteps->count()<data.getDataCoordinatesSize()-slider->value()){
+            numberOfSwapedSteps->addItem(QString::number(numberOfSwapedSteps->count()));
+        }
+    }
+
     //calls paintGL
     screen->update();
 }
 
-void ProgramWindow::fillWindowCoordinates(int index, int color) {
+void ProgramWindow::fillCoordinatesSwapWindows(int index, int color) {
     coordinatesWindow->addLineCoordinates(data.get1Marker(slider->value(), index), color);
+    swapWindow->addSelectedMarker(index, color);
 }
 
 void ProgramWindow::updateWindowCoordinates() {
@@ -286,7 +312,11 @@ void ProgramWindow::keyPressEvent(QKeyEvent *event) {
     selectedMarkersToBeSwaped[0] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(0));
     selectedMarkersToBeSwaped[1] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(1));
     if(event->key() == Qt::Key_Enter) { 
-        data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
+        for(int i = slider->value() ; i < slider->value() + numberOfSwapedSteps->currentIndex() + 1 ; i++) {
+            //data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
+            data.swapMarkersData(screen->getMarkersToBeSwaped(), i);
+        }
+        swapWindow->updateCoordinates();
         if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
             coordinatesWindow->swapCoordinates(selectedMarkersToBeSwaped);
         }
