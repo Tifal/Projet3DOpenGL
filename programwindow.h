@@ -26,7 +26,7 @@ public:
     void updateWindowCoordinates();
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    //void keyPressEvent(QKeyEvent *event);
 
 public slots:
     void changeStep(int index);
@@ -42,6 +42,7 @@ public slots:
     void enableDisplayFormerSteps();
     void enableDisplayFurtherSteps();
     void choosePointsLinesFormerSteps();
+    void swapMarkers();
 
 signals:
     void stopTimer();
@@ -63,6 +64,7 @@ private:
     QPushButton *linkModeButton;
     QPushButton *formerSteps;
     QPushButton *furtherSteps;
+    QPushButton *swapMarkersButton;
     QRadioButton *displayChoice1;
     QRadioButton *displayChoice2;
     QRadioButton *formerStepsLine;

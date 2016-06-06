@@ -43,6 +43,18 @@ void Data::loadData(QString& fileName) {
     fichier.close();
 }
 
+void Data::saveData(QString& fileName) {
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    for(auto line : dataCoordinates) {
+        for(auto cell : line) {
+            out << cell.getX() << "\t" << cell.getY() << "\t" << cell.getZ() << "\t";
+        }
+        out << "\n";
+    }
+}
+
 const QVector<QVector<Marker>>* Data::getDataCoordinates() const {
     return &dataCoordinates;
 }

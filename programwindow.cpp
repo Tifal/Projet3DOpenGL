@@ -59,6 +59,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     linkModeButton = new QPushButton("link markers",this);
     QPushButton *eraseLinks = new QPushButton("erase links", this);
     formerSteps = new QPushButton("display former steps", this);
+    swapMarkersButton = new QPushButton("swap markers", this);
     numberOfFormerSteps = new QComboBox(this);
     formerStepsLine = new QRadioButton("lines", this);
     formerStepsPoints = new QRadioButton("points", this);
@@ -77,6 +78,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     layout->addWidget(numberOfFurtherSteps, 10, 1);
     layout->addWidget(swapLabel,11,0);
     layout->addWidget(numberOfSwapedSteps,11,1);
+    layout->addWidget(swapMarkersButton, 11, 2);
     selectModeButton->setCheckable(true);
     linkModeButton->setCheckable(true);
     formerSteps->setCheckable(true);
@@ -101,6 +103,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(furtherSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFurtherSteps()));
     connect(numberOfFurtherSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFurtherStepsDisplayed(int)));
     //connect(numberOfFurtherSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
+    connect(swapMarkersButton, SIGNAL(clicked(bool)), this, SLOT(swapMarkers()));
     connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
     connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
     connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
@@ -307,19 +310,22 @@ void ProgramWindow::enableDisplayFurtherSteps() {
     }
 }
 
-void ProgramWindow::keyPressEvent(QKeyEvent *event) {
+//void ProgramWindow::keyPressEvent(QKeyEvent *event) {
+void ProgramWindow::swapMarkers() {
     std::array<int, 2> selectedMarkersToBeSwaped;
     selectedMarkersToBeSwaped[0] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(0));
     selectedMarkersToBeSwaped[1] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(1));
-    if(event->key() == Qt::Key_Enter) { 
+    if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
         for(int i = slider->value() ; i < slider->value() + numberOfSwapedSteps->currentIndex() + 1 ; i++) {
             //data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
             data.swapMarkersData(screen->getMarkersToBeSwaped(), i);
         }
         swapWindow->updateCoordinates();
-        if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
+        //if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
             coordinatesWindow->swapCoordinates(selectedMarkersToBeSwaped);
-        }
+       // }
     }
+    QString s("nom");
+    data.saveData(s);
     screen->update();
 }

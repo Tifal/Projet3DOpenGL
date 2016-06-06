@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QFile>
 #include <iostream>
+#include <QTextStream>
 #include "marker.h"
 
 class Data
@@ -17,6 +18,7 @@ public:
     Data();
     void displayData() const;
     void loadData(QString& fileName);
+    void saveData(QString& fileName);
     //const QVector<float>& get1Vector(int index);
     const QVector<QVector<Marker>>* getDataCoordinates() const;
     const QVector<Marker>& get1Vector(int index) const;
