@@ -6,7 +6,7 @@ FileWindow::FileWindow(QWidget *parent) : QWidget(parent){
 }
 
 void FileWindow::setViewMrHolt(){
-    this->setWindowTitle("View from Mr. Holt");
+    this->setWindowTitle("File window");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
             QFile fichier("files/comb_traj_20160219_121123.dat");
@@ -19,7 +19,7 @@ void FileWindow::setViewMrHolt(){
     QStringList liste;
     QStringList split;
     int countZero=0;
-    QTableWidget *table = new QTableWidget(38, 300);
+    QTableWidget *table = new QTableWidget(300, 38);
     table->setEditTriggers(QAbstractItemView::EditTriggers(0));
     table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     //label->setText(s);
@@ -39,7 +39,7 @@ void FileWindow::setViewMrHolt(){
             split=item->text().split(" ");
 
 
-            table->setItem(l, i, item);
+            table->setItem(i, l, item);
             QString x=split.value(0);
             QString y=split.value(1);
             QString z=split.value(2);
@@ -59,7 +59,7 @@ void FileWindow::setViewMrHolt(){
 }
 
 void FileWindow::setViewMrNilsen(){
-    this->setWindowTitle("View from Mr. Nilsen");
+    this->setWindowTitle("File window");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
             QFile fichier("files/comb_traj_20160219_121123.dat");

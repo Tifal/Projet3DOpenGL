@@ -31,8 +31,11 @@ signals:
 
 private:
     QGridLayout *layout;
+    // QVector that stores "remove" buttons
     QVector<QPushButton*> buttonVector;
+    // QVector that stores the label showing the number of the marker in the list of selected markers
     QVector<QLabel*> labelVector;
+    // QVector that stores the QLineEdit that are used to display the coordinates of the markers
     QVector<QVector<QLineEdit*>> xyzVector;
     QComboBox *distanceMarker1;
     QComboBox *distanceMarker2;

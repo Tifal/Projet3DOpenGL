@@ -9,6 +9,7 @@ Marker::Marker(int id, float x, float y, float z)
     markerCoordinates[1] = y;
     markerCoordinates[2] = z;
 
+    // the color identifier is used to pick the marker
     redId = (id & 0x000000FF);
     greenId = (id & 0x0000FF00) >>  8;
     blueId = (id & 0x00FF0000) >> 16;

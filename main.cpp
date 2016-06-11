@@ -10,8 +10,6 @@ int main(int argc, char *argv[])
 
     ProgramWindow window;
 
-    //window.show();
-
     window.configureScreen();
 
     return a.exec();

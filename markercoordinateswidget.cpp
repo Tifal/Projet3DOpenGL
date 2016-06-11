@@ -3,7 +3,10 @@
 
 MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget *parent) : QFrame(parent)
 {
+    setFrameShadow(QFrame::Plain);
     markerNumber = new QLabel("Marker n°" + QString::number(number + 1), this);
+    markerNumber->setMinimumWidth(70);
+    markerNumber->setAlignment(Qt::AlignCenter);
     x = new QLabel("x = ", this);
     y = new QLabel("y = ", this);
     z = new QLabel("z = ", this);
@@ -60,13 +63,7 @@ void MarkerCoordinatesWidget::addStepCoordinates() {
         coordinatesColumns[i].append(new QLineEdit(this));
         coordinatesColumns[i].last()->setReadOnly(true);
         layout->addWidget(coordinatesColumns.at(i).last(), i, coordinatesColumns.at(i).size() + 1);
-        //.at(coordinatesColumns.at(i).size() - 1)
     }
-    /*for(auto row : coordinatesColumns) {
-        row.append(new QLineEdit(this));
-        layout->addWidget(row.last(),);
-    }*/
-    //setStepCoordinates(coordinatesColumns.size() - 1, marker);
 }
 
 void MarkerCoordinatesWidget::removeStepCoordinates() {
@@ -81,4 +78,13 @@ int MarkerCoordinatesWidget::getSizeSteps() {
     return coordinatesColumns[0].size();
 }
 
+void MarkerCoordinatesWidget::setMarkerNumber(int number) {
+    markerNumber->setText("Marker n°" + QString::number(number));
+}
+
+void MarkerCoordinatesWidget::setMarkerColor(int color) {
+    QPalette palette;
+    palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(color)));
+    markerColor->setPalette(palette);
+}
 

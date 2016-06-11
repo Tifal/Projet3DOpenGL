@@ -3,7 +3,6 @@
 
 CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 {
-    //colorIndex = 7;
     layout = new QGridLayout(this);
     setWindowTitle("marker coordinates window");
 
@@ -14,19 +13,19 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 
     QLabel *subTitleCoordinates = new QLabel("marker coordinates", this);
     subTitleCoordinates->setMinimumHeight(50);
+    QLabel *headerColor = new QLabel("color", this);
     QLabel *headerX = new QLabel("x", this);
     QLabel *headerY = new QLabel("y", this);
     QLabel *headerZ = new QLabel("z", this);
-    QLabel *headerColor = new QLabel("color", this);
 
     //layout->addWidget(subtitleDistance, 0, 0, 1, 6, Qt::AlignCenter);
     //layout->addWidget(distanceMarker1, 1, 0, 1, 3);
     //layout->addWidget(distanceMarker2, 1, 3, 1, 3);
     layout->addWidget(subTitleCoordinates, 2, 0, 1, 6, Qt::AlignCenter);
+    layout->addWidget(headerColor, 3, 4, Qt::AlignCenter);
     layout->addWidget(headerX, 3, 1, Qt::AlignCenter);
     layout->addWidget(headerY, 3, 2, Qt::AlignCenter);
     layout->addWidget(headerZ, 3, 3, Qt::AlignCenter);
-    layout->addWidget(headerColor, 3, 4, Qt::AlignCenter);
     layout->setSpacing(0.0);
 
     this->setLayout(layout);
@@ -41,6 +40,7 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
     int row = layout->rowCount();
     xyzVector.append(QVector<QLineEdit*>());
+    //QPalette is used to put a color in the QLineEdit
     QPalette palette;
     labelVector.append(new QLabel("selected marker number " + QString::number(xyzVector.size()), this));
     labelVector.last()->setMinimumWidth(140);
@@ -50,11 +50,11 @@ void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
         xyzVector.last().last()->setReadOnly(true);
         layout->addWidget(xyzVector.last().last(), row, i);
     }
-    xyzVector.last().at(0)->setText(QString::number(marker.getX()));
-    xyzVector.last().at(1)->setText(QString::number(marker.getY()));
-    xyzVector.last().at(2)->setText(QString::number(marker.getZ()));
     palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(color)));
-    xyzVector.last().at(3)->setPalette(palette);
+    xyzVector.last().at(0)->setPalette(palette);
+    xyzVector.last().at(1)->setText(QString::number(marker.getX()));
+    xyzVector.last().at(2)->setText(QString::number(marker.getY()));
+    xyzVector.last().at(3)->setText(QString::number(marker.getZ()));
     //colorIndex++;
     buttonVector.append(new QPushButton("remove", this));
     connect(buttonVector.last(), SIGNAL(clicked(bool)), this, SLOT(removeLineCoordinates()));
@@ -64,18 +64,20 @@ void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
 void CoordinatesWindow::updateCoordinates(QVector<Marker>& markerVector) {
     int i = 0;
     for(auto row : xyzVector) {
-        row.at(0)->setText(QString::number(markerVector.at(i).getX()));
-        row.at(1)->setText(QString::number(markerVector.at(i).getY()));
-        row.at(2)->setText(QString::number(markerVector.at(i).getZ()));
+        row.at(1)->setText(QString::number(markerVector.at(i).getX()));
+        row.at(2)->setText(QString::number(markerVector.at(i).getY()));
+        row.at(3)->setText(QString::number(markerVector.at(i).getZ()));
         i++;
     }
 }
 
 void CoordinatesWindow::removeLineCoordinates() {
     int i = 0;
+    // We look for the index of the button that have sent the signal in the QVector of "remove" buttons
     while(sender() != (QObject*)buttonVector.at(i)) {
         i++;
     }
+    // once we have found the index we can remove all the widget of the line that corresponds to this index
     emit lineRemoved(i);
     layout->removeWidget(labelVector.at(i));
     delete labelVector.at(i);
@@ -93,6 +95,7 @@ void CoordinatesWindow::removeLineCoordinates() {
 }
 
 void CoordinatesWindow::updateLabelNumber(int index) {
+    // When a line is removed, the number of the selected markers must be updated
     while(index < labelVector.size()) {
         labelVector.at(index)->setText("selected marker number " + QString::number(index + 1));
         index++;
@@ -100,11 +103,12 @@ void CoordinatesWindow::updateLabelNumber(int index) {
 }
 
 void CoordinatesWindow::swapCoordinates(const std::array<int, 2>& markersToBeSwaped) {
-    std::array<QString, 3> temp({xyzVector.at(markersToBeSwaped.at(0)).at(0)->text(), xyzVector.at(markersToBeSwaped.at(0)).at(1)->text(),
-                                xyzVector.at(markersToBeSwaped.at(0)).at(2)->text()});
+    // a temporary array used to store the coordinates of the first marker to be swapped
+    std::array<QString, 3> temp({xyzVector.at(markersToBeSwaped.at(0)).at(1)->text(), xyzVector.at(markersToBeSwaped.at(0)).at(2)->text(),
+                                xyzVector.at(markersToBeSwaped.at(0)).at(3)->text()});
     for(int i = 0 ; i < 3 ; i++) {
-        xyzVector.at(markersToBeSwaped.at(0)).at(i)->setText(xyzVector.at(markersToBeSwaped.at(1)).at(i)->text());
-        xyzVector.at(markersToBeSwaped.at(1)).at(i)->setText(temp.at(i));
+        xyzVector.at(markersToBeSwaped.at(0)).at(i + 1)->setText(xyzVector.at(markersToBeSwaped.at(1)).at(i + 1)->text());
+        xyzVector.at(markersToBeSwaped.at(1)).at(i + 1)->setText(temp.at(i));
     }
 
 }

@@ -8,8 +8,10 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QTabWidget>
 #include "displaywindow.h"
 #include "data.h"
 #include "coordinateswindow.h"
@@ -39,7 +41,9 @@ public slots:
     void changeChoice1();
     void changeChoice2();
     void selectOrLinkMode();
+    void enableDisplayLinks();
     void enableDisplayFormerSteps();
+    void enableDisplayFormerStepsSelectedMarkers();
     void enableDisplayFurtherSteps();
     void choosePointsLinesFormerSteps();
     void swapMarkers();
@@ -59,9 +63,15 @@ private:
     QPushButton *demoButton;
     QPushButton *pauseButton;
     QPushButton *stopButton;
+    QPushButton *frontSideCamera;
+    QPushButton *backSideCamera;
+    QPushButton *leftSideCamera;
+    QPushButton *rightSideCamera;
     QPushButton *displayFileCoordinates;
     QPushButton *selectModeButton;
     QPushButton *linkModeButton;
+    QCheckBox *displayLinksButton;
+    QCheckBox *displayFormerStepsSelectedMarkers;
     QPushButton *formerSteps;
     QPushButton *furtherSteps;
     QPushButton *swapMarkersButton;

@@ -18,6 +18,8 @@ public:
     void addStepCoordinates();
     void removeStepCoordinates();
     int getSizeSteps();
+    void setMarkerNumber(int number);
+    void setMarkerColor(int color);
 
 private:
     QLabel * markerNumber;

@@ -11,6 +11,8 @@ class Data
 {
 
 private:
+    // QVector that stores coordinates of the markers for each time step
+    // 2 dimensionnal QVector where the rows corresponds to the time steps and the columns corresponds to the markers
     QVector<QVector<Marker>> dataCoordinates;
     int indexCurrentStep;   //????
 
