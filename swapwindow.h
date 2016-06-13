@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include "markercoordinateswidget.h"
+#include "data.h"
 
 class SwapWindow : public QWidget
 {
@@ -12,7 +13,8 @@ class SwapWindow : public QWidget
     Q_OBJECT
 public:
     SwapWindow(QWidget *parent = Q_NULLPTR);
-    void setData(const QVector<QVector<Marker>> * pointerToData);
+    //void setData(const QVector<QVector<Marker>> * pointerToData);
+    void setData(const Data *pointerToData);
     void updateCoordinates();
     void setCurrentStep(int step);
 
@@ -25,7 +27,7 @@ public slots:
 private:
     QVector<MarkerCoordinatesWidget*> markerCoordinatesRows;
     QVBoxLayout *layout;
-    const QVector<QVector<Marker>> *data;
+    const Data *data;
     //QVector<int> selectedMarkersIndexes;
     std::array<int, 2> markersToBeSwappedIndexes;
     int currentStep;

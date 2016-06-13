@@ -8,6 +8,7 @@
 #include <QMatrix4x4>
 #include <QFile>
 #include <QMouseEvent>
+#include "data.h"
 #include "marker.h"
 
 class DisplayWindow : public QOpenGLWidget, protected QOpenGLFunctions_2_0
@@ -15,7 +16,8 @@ class DisplayWindow : public QOpenGLWidget, protected QOpenGLFunctions_2_0
     Q_OBJECT
 private:
     // a pointer to the data from the Data class of the program
-    const QVector<QVector<Marker>> * data;
+    //const QVector<QVector<Marker>> * data;
+    const Data *data;
     // QVector storing the index of the markers that have been picked in select mode
     QVector<int> selectedMarkerIndexes;
     // QVector storing the color available to display the selected markers
@@ -45,6 +47,7 @@ private:
     bool selectMarkerMode;
     // a boolean that indicates if the current mode is swap mode to know how to process the marker picked
     bool swapMode;
+    bool eraseOneLinkMode;
     // a boolean that is used to know if the white cross should be painted on the screen
     bool lineBeingDrawn;
     // a boolean that indicates whether the previous steps should be displayed as points or lines
@@ -55,14 +58,18 @@ public:
     void setViewPort();
     void setProjection();
     void setModelView();
-    void setData(const QVector<QVector<Marker>> * pointerToData);
+    void setData(const Data * pointerToData);
     void setCurrentStep(int index);
     const QVector<int>& getSelectedMarkerIndexes() const;
     const std::array<int, 2>& getMarkersToBeSwaped() const;
     void selectMarker();
     void linkMarkerLine();
+    int pickLink();
+    void removePickedLink();
     void swapMarkers();
     void setLinkMarkerMode(bool boolean);
+    void setEraseOneLinkMode(bool boolean);
+    void setSwapMode(bool boolean);
     void setDisplayLinks(bool boolean);
     void setSelectMarkerMode(bool boolean);
     void setDisplayFormerSteps(bool boolean);
@@ -70,6 +77,7 @@ public:
     void setFormerStepsPoints(bool boolean);
     void setFormerStepsSelectedMarkers(bool boolean);
     const Marker& getMarkerWithCross() const;
+    const QVector<std::array<int, 2>>& getLinkedMarkersIndexes() const;
     bool alreadyLinkedMarkers(std::array<int, 2>& linkedMarkers);
     //void setCoordinates(const QVector<Marker>& newCoordinates);
 

@@ -5,14 +5,14 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
 {
     layout = new QGridLayout(this);
     setWindowTitle("marker coordinates window");
-
+    currentStep = 0;
     //QLabel *subtitleDistance = new QLabel("distance between markers", this);
     //subtitleDistance->setMinimumHeight(50);
     //distanceMarker1 = new QComboBox(this);
     //distanceMarker2 = new QComboBox(this);
 
     QLabel *subTitleCoordinates = new QLabel("marker coordinates", this);
-    subTitleCoordinates->setMinimumHeight(50);
+    subTitleCoordinates->setMinimumHeight(20);
     QLabel *headerColor = new QLabel("color", this);
     QLabel *headerX = new QLabel("x", this);
     QLabel *headerY = new QLabel("y", this);
@@ -22,10 +22,10 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     //layout->addWidget(distanceMarker1, 1, 0, 1, 3);
     //layout->addWidget(distanceMarker2, 1, 3, 1, 3);
     layout->addWidget(subTitleCoordinates, 2, 0, 1, 6, Qt::AlignCenter);
-    layout->addWidget(headerColor, 3, 4, Qt::AlignCenter);
-    layout->addWidget(headerX, 3, 1, Qt::AlignCenter);
-    layout->addWidget(headerY, 3, 2, Qt::AlignCenter);
-    layout->addWidget(headerZ, 3, 3, Qt::AlignCenter);
+    layout->addWidget(headerColor, 3, 1, Qt::AlignCenter);
+    layout->addWidget(headerX, 3, 2, Qt::AlignCenter);
+    layout->addWidget(headerY, 3, 3, Qt::AlignCenter);
+    layout->addWidget(headerZ, 3, 4, Qt::AlignCenter);
     layout->setSpacing(0.0);
 
     this->setLayout(layout);
@@ -37,7 +37,8 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     distance->setText(QString::number(result));
 }*/
 
-void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
+void CoordinatesWindow::addLineCoordinates(int index, int color) {
+    selectedMarkersIndexes.append(index);
     int row = layout->rowCount();
     xyzVector.append(QVector<QLineEdit*>());
     //QPalette is used to put a color in the QLineEdit
@@ -52,21 +53,30 @@ void CoordinatesWindow::addLineCoordinates(const Marker& marker, int color) {
     }
     palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(color)));
     xyzVector.last().at(0)->setPalette(palette);
-    xyzVector.last().at(1)->setText(QString::number(marker.getX()));
-    xyzVector.last().at(2)->setText(QString::number(marker.getY()));
-    xyzVector.last().at(3)->setText(QString::number(marker.getZ()));
+    xyzVector.last().at(1)->setText(QString::number(data->get1Marker(currentStep, index).getX()));
+    xyzVector.last().at(2)->setText(QString::number(data->get1Marker(currentStep, index).getY()));
+    xyzVector.last().at(3)->setText(QString::number(data->get1Marker(currentStep, index).getZ()));
     //colorIndex++;
     buttonVector.append(new QPushButton("remove", this));
     connect(buttonVector.last(), SIGNAL(clicked(bool)), this, SLOT(removeLineCoordinates()));
     layout->addWidget(buttonVector.last(), row, 5);
 }
 
-void CoordinatesWindow::updateCoordinates(QVector<Marker>& markerVector) {
+void CoordinatesWindow::setData(const Data *pointerToData) {
+    data = pointerToData;
+}
+
+void CoordinatesWindow::setCurrentStep(int step) {
+    currentStep = step;
+    updateCoordinates();
+}
+
+void CoordinatesWindow::updateCoordinates() {
     int i = 0;
     for(auto row : xyzVector) {
-        row.at(1)->setText(QString::number(markerVector.at(i).getX()));
-        row.at(2)->setText(QString::number(markerVector.at(i).getY()));
-        row.at(3)->setText(QString::number(markerVector.at(i).getZ()));
+        row.at(1)->setText(QString::number(data->get1Marker(currentStep, selectedMarkersIndexes.at(i)).getX()));
+        row.at(2)->setText(QString::number(data->get1Marker(currentStep, selectedMarkersIndexes.at(i)).getY()));
+        row.at(3)->setText(QString::number(data->get1Marker(currentStep, selectedMarkersIndexes.at(i)).getZ()));
         i++;
     }
 }
@@ -78,6 +88,7 @@ void CoordinatesWindow::removeLineCoordinates() {
         i++;
     }
     // once we have found the index we can remove all the widget of the line that corresponds to this index
+    selectedMarkersIndexes.remove(i);
     emit lineRemoved(i);
     layout->removeWidget(labelVector.at(i));
     delete labelVector.at(i);

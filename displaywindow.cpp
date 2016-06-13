@@ -1,5 +1,4 @@
 #include "displaywindow.h"
-//#include "marker.h"
 #include <iostream>
 
 
@@ -12,9 +11,10 @@ DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
     data = NULL;
     currentStep = 0;
     linkMarkerMode = false;
+    eraseOneLinkMode = false;
     displayLinks = true;
     selectMarkerMode = false;
-   // swapMode = true;
+    swapMode = false;
     displayFormerSteps = false;
     displayFurtherSteps = false;
     formerStepsPoints = false;
@@ -64,7 +64,7 @@ void DisplayWindow::setModelView() {
     glMultMatrixf(tab);
 }
 
-void DisplayWindow::setData(const QVector<QVector<Marker>> * pointerToData) {
+void DisplayWindow::setData(const Data * pointerToData) {
     data = pointerToData;
 }
 
@@ -79,6 +79,10 @@ const QVector<int>& DisplayWindow::getSelectedMarkerIndexes() const {
 const std::array<int, 2>& DisplayWindow::getMarkersToBeSwaped() const {
     return markersToBeSwapedIndexes;
 }
+
+ const QVector<std::array<int, 2>>& DisplayWindow::getLinkedMarkersIndexes() const {
+     return linkedMarkersIndexes;
+ }
 
 void DisplayWindow::removePickedIndex(int index) {
     for(int i=0;i<2;i++){
@@ -143,7 +147,7 @@ void DisplayWindow::paintMarkers() {
     makeCurrent();
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
-    for(auto marker : data->at(currentStep)) {
+    for(auto marker : data->get1Vector(currentStep)) {
         glVertex3f(marker.getX() / 1500, marker.getY() / 1500, marker.getZ() / 1500);
     }
     glEnd();
@@ -157,7 +161,7 @@ void DisplayWindow::paintSelectedMarkers() {
     for(auto index : selectedMarkerIndexes) {
         color = new QColor(Qt::GlobalColor(colorsAvailable.at(colorIndex)));
         glColor3f(color->red() / 255.0, color->green() / 255.0, color->blue() / 255.0);
-        glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ() / 1500);
+        glVertex3f(data->get1Marker(currentStep, index).getX() / 1500, data->get1Marker(currentStep, index).getY() / 1500, data->get1Marker(currentStep, index).getZ() / 1500);
         delete color;
         colorIndex++;
     }
@@ -203,12 +207,12 @@ void DisplayWindow::paintMarkersWithRedCross() {
     glColor3f(1.0, 0.0, 0.0);
     for(auto index : markersToBeSwapedIndexes) {
         if(index != -1) {
-            glVertex3f((data->at(currentStep).at(index).getX() + 50) /1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ()/ 1500);
-            glVertex3f((data->at(currentStep).at(index).getX() - 50) /1500, data->at(currentStep).at(index).getY() / 1500, data->at(currentStep).at(index).getZ()/ 1500);
-            glVertex3f(data->at(currentStep).at(index).getX() /1500, (data->at(currentStep).at(index).getY() + 50) / 1500, data->at(currentStep).at(index).getZ()/ 1500);
-            glVertex3f(data->at(currentStep).at(index).getX() /1500, (data->at(currentStep).at(index).getY() - 50) / 1500, data->at(currentStep).at(index).getZ()/ 1500);
-            glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, (data->at(currentStep).at(index).getZ() + 50) / 1500);
-            glVertex3f(data->at(currentStep).at(index).getX() / 1500, data->at(currentStep).at(index).getY() / 1500, (data->at(currentStep).at(index).getZ() - 50) / 1500);
+            glVertex3f((data->get1Marker(currentStep, index).getX() + 50) /1500, data->get1Marker(currentStep, index).getY() / 1500, data->get1Marker(currentStep, index).getZ()/ 1500);
+            glVertex3f((data->get1Marker(currentStep, index).getX() - 50) /1500, data->get1Marker(currentStep, index).getY() / 1500, data->get1Marker(currentStep, index).getZ()/ 1500);
+            glVertex3f(data->get1Marker(currentStep, index).getX() /1500, (data->get1Marker(currentStep, index).getY() + 50) / 1500, data->get1Marker(currentStep, index).getZ()/ 1500);
+            glVertex3f(data->get1Marker(currentStep, index).getX() /1500, (data->get1Marker(currentStep, index).getY() - 50) / 1500, data->get1Marker(currentStep, index).getZ()/ 1500);
+            glVertex3f(data->get1Marker(currentStep, index).getX() / 1500, data->get1Marker(currentStep, index).getY() / 1500, (data->get1Marker(currentStep, index).getZ() + 50) / 1500);
+            glVertex3f(data->get1Marker(currentStep, index).getX() / 1500, data->get1Marker(currentStep, index).getY() / 1500, (data->get1Marker(currentStep, index).getZ() - 50) / 1500);
         }
     }
     glEnd();
@@ -220,7 +224,7 @@ void DisplayWindow::paintFormerSteps() {
     int j = 0;
     int colorIndex = 0;
     QColor *color;
-    for(int i = 0 ; i < data->last().size() ; i++) {
+    for(int i = 0 ; i < data->get1Vector(0).size() ; i++) {
         if(currentStep >= numberOfFormerStepsDisplayed) {
             j = currentStep - numberOfFormerStepsDisplayed;
         }
@@ -241,14 +245,14 @@ void DisplayWindow::paintFormerSteps() {
             delete color;
             colorIndex++;
             while(j <= currentStep) {
-                glVertex3f(data->at(j).at(i).getX() / 1500, data->at(j).at(i).getY() / 1500, data->at(j).at(i).getZ() / 1500);
+                glVertex3f(data->get1Marker(j, i).getX() / 1500, data->get1Marker(j, i).getY() / 1500, data->get1Marker(j, i).getZ() / 1500);
                 j++;
             }
             glColor3f(1.0, 1.0, 1.0);
         }
         else if(!formerStepsSelectedMarkers){
             while(j <= currentStep) {
-                glVertex3f(data->at(j).at(i).getX() / 1500, data->at(j).at(i).getY() / 1500, data->at(j).at(i).getZ() / 1500);
+                glVertex3f(data->get1Marker(j, i).getX() / 1500, data->get1Marker(j, i).getY() / 1500, data->get1Marker(j, i).getZ() / 1500);
                 j++;
             }
         }
@@ -264,8 +268,8 @@ void DisplayWindow::paintFurtherSteps() {
     QColor *color;
     int j = 0;
     int limitOfStepsDisplayed = currentStep + numberOfFurtherStepsDisplayed;
-    if(data->size() <= limitOfStepsDisplayed) {
-        limitOfStepsDisplayed = data->size() - 1;
+    if(data->getDataCoordinatesSize() <= limitOfStepsDisplayed) {
+        limitOfStepsDisplayed = data->getDataCoordinatesSize() - 1;
     }
     for(int i = 0; i < selectedMarkerIndexes.size() ; i++) {
         indexSelected = selectedMarkerIndexes.at(i);
@@ -276,7 +280,7 @@ void DisplayWindow::paintFurtherSteps() {
         delete color;
         colorIndex++;
         while(j < limitOfStepsDisplayed + 1) {
-            glVertex3f(data->at(j).at(indexSelected).getX() / 1500, data->at(j).at(indexSelected).getY() / 1500, data->at(j).at(indexSelected).getZ() / 1500);
+            glVertex3f(data->get1Marker(j, indexSelected).getX() / 1500, data->get1Marker(j, indexSelected).getY() / 1500, data->get1Marker(j, indexSelected).getZ() / 1500);
             j++;
         }
         glEnd();
@@ -288,16 +292,16 @@ void DisplayWindow::paintLinkedMarkers() {
     glBegin(GL_LINES);
     glColor3f(1.0, 1.0, 1.0);
         for(int i = 0 ; i < linkedMarkersIndexes.size() - 1 ; i++) {
-            glVertex3f(data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getX() / 1500, data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getY() / 1500,
-                    data->at(currentStep).at(linkedMarkersIndexes.at(i)[0]).getZ() / 1500);
-            glVertex3f(data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getX() / 1500, data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getY() / 1500,
-                    data->at(currentStep).at(linkedMarkersIndexes.at(i)[1]).getZ() / 1500);
+            glVertex3f(data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getX() / 1500, data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getY() / 1500,
+                    data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getZ() / 1500);
+            glVertex3f(data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getX() / 1500, data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getY() / 1500,
+                    data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getZ() / 1500);
         }
     glEnd();
 }
 
 const Marker& DisplayWindow::getMarkerWithCross() const {
-    return data->at(currentStep).at(linkedMarkersIndexes.last()[0]);
+    return data->get1Marker(currentStep,linkedMarkersIndexes.last()[0]);
 }
 
 /** Method that implements the mouse pressed event.
@@ -317,6 +321,9 @@ void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     else if(swapMode) {
         swapMarkers();
     }
+    else if(eraseOneLinkMode) {
+        removePickedLink();
+    }
 }
 
 /** Method that implements the mouse moved event.
@@ -334,7 +341,7 @@ int DisplayWindow::pickMarker() {
     glDrawBuffer(GL_BACK);
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    for(auto marker : data->at(currentStep)) {
+    for(auto marker : data->get1Vector(currentStep)) {
         glPointSize(3.0);
         glBegin(GL_POINTS);
             glColor3f(marker.getRedId() / 255.0, marker.getGreenId() / 255.0, marker.getBlueId() / 255.0);
@@ -396,10 +403,41 @@ void DisplayWindow::linkMarkerLine() {
             lineBeingDrawn = true;
         }
     }
-    for(auto element : linkedMarkersIndexes) {
-        std::cout << element[0] << ";" << element[1] << std::endl;
-    }
     update();
+}
+
+int DisplayWindow::pickLink() {
+    makeCurrent();
+    unsigned char pixelRead[3];
+    glDrawBuffer(GL_BACK);
+    glClearColor(0.0, 0.0 ,0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    int redId = 0;
+    int greenId = 0;
+    int blueId = 0;
+    for(int i = 0 ; i < linkedMarkersIndexes.size() - 1 ; i++) {
+        glBegin(GL_LINES);
+        redId = ((i + 1) & 0x000000FF);
+        greenId = ((i + 1) & 0x0000FF00) >>  8;
+        blueId = ((i + 1) & 0x00FF0000) >> 16;
+        glColor3f(redId / 255.0, greenId / 255.0, blueId / 255.0);
+        glVertex3f(data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getX() / 1500, data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getY() / 1500,
+            data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[0])).getZ() / 1500);
+            glVertex3f(data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getX() / 1500, data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getY() / 1500,
+            data->get1Marker(currentStep,(linkedMarkersIndexes.at(i)[1])).getZ() / 1500);
+        glEnd();
+    }
+    glFlush();
+    glReadPixels(mouseXStartPosition, height() - mouseYStartPosition, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelRead);
+    update();
+    return (int)pixelRead[0] + (int)pixelRead[1] *256 + (int)pixelRead[2] * 256 *256 - 1;
+}
+
+void DisplayWindow::removePickedLink() {
+    int index = pickLink();
+    if(index != -1) {
+        linkedMarkersIndexes.remove(index);
+    }
 }
 
 bool DisplayWindow::alreadyLinkedMarkers(std::array<int, 2>& linkedMarkers) {
@@ -582,4 +620,12 @@ void DisplayWindow::setFormerStepsPoints(bool boolean) {
 
 void DisplayWindow::setFormerStepsSelectedMarkers(bool boolean) {
     formerStepsSelectedMarkers = boolean;
+}
+
+void DisplayWindow::setEraseOneLinkMode(bool boolean) {
+    eraseOneLinkMode = boolean;
+}
+
+void DisplayWindow::setSwapMode(bool boolean) {
+    swapMode = boolean;
 }

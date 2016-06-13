@@ -32,6 +32,8 @@ protected:
 
 public slots:
     void changeStep(int index);
+    void incrementSlider();
+    void decrementSlider();
     void fillCoordinatesSwapWindows(int index, int color);
     void demoPlaying();
     void startDemo();
@@ -40,12 +42,13 @@ public slots:
     void displayFile();
     void changeChoice1();
     void changeChoice2();
-    void selectOrLinkMode();
+    void pickMode();
     void enableDisplayLinks();
     void enableDisplayFormerSteps();
     void enableDisplayFormerStepsSelectedMarkers();
     void enableDisplayFurtherSteps();
     void choosePointsLinesFormerSteps();
+    void saveSkeleton();
     void swapMarkers();
 
 signals:
@@ -63,6 +66,8 @@ private:
     QPushButton *demoButton;
     QPushButton *pauseButton;
     QPushButton *stopButton;
+    QPushButton *stepForward;
+    QPushButton *stepBackward;
     QPushButton *frontSideCamera;
     QPushButton *backSideCamera;
     QPushButton *leftSideCamera;
@@ -70,10 +75,13 @@ private:
     QPushButton *displayFileCoordinates;
     QPushButton *selectModeButton;
     QPushButton *linkModeButton;
+    QPushButton *eraseOneLinkButton;
+    QPushButton *saveSkeletonButton;
     QCheckBox *displayLinksButton;
     QCheckBox *displayFormerStepsSelectedMarkers;
     QPushButton *formerSteps;
     QPushButton *furtherSteps;
+    QPushButton *swapModeButton;
     QPushButton *swapMarkersButton;
     QRadioButton *displayChoice1;
     QRadioButton *displayChoice2;

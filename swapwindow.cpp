@@ -35,7 +35,7 @@ void SwapWindow::addSelectedMarker(int position, int index, int color) {
     markersToBeSwappedIndexes[position] = index;
     for(int i = 0 ; i <= numberOfFurtherSteps ; i++) {
         markerCoordinatesRows.last()->addStepCoordinates();
-        markerCoordinatesRows.last()->setStepCoordinates(i, data->at(currentStep + i).at(index));
+        markerCoordinatesRows.last()->setStepCoordinates(i, data->get1Marker(currentStep + i, index));
     }
     layout->addStretch(1);
 }
@@ -52,7 +52,7 @@ void SwapWindow::removeSelectedMarker(int position) {
     }
 }
 
-void SwapWindow::setData(const QVector<QVector<Marker>> * pointerToData) {
+void SwapWindow::setData(const Data * pointerToData) {
     data = pointerToData;
 }
 
@@ -60,7 +60,7 @@ void SwapWindow::updateCoordinates() {
     for(int i=0; i<2;i++){
         if(markersToBeSwappedIndexes.at(i)!=-1){
             for(int j = 0 ; j <= numberOfFurtherSteps ; j++) {
-                markerCoordinatesRows.at(i)->setStepCoordinates(j, data->at(currentStep + j).at(markersToBeSwappedIndexes.at(i)));
+                markerCoordinatesRows.at(i)->setStepCoordinates(j, data->get1Marker(currentStep + j, markersToBeSwappedIndexes.at(i)));
             }
         }
     }

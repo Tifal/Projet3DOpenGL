@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <cmath>
+#include "data.h"
 #include "marker.h"
 
 class CoordinatesWindow : public QWidget
@@ -17,8 +18,10 @@ class CoordinatesWindow : public QWidget
 public:
     CoordinatesWindow(QWidget *parent = Q_NULLPTR);
     void setDistance(const Marker& marker1, const Marker& marker2);
-    void addLineCoordinates(const Marker& marker, int color);
-    void updateCoordinates(QVector<Marker>& markerVector);
+    void setData(const Data *pointerToData);
+    void setCurrentStep(int step);
+    void addLineCoordinates(int index, int color);
+    void updateCoordinates();
     void updateLabelNumber(int index);
     void swapCoordinates(const std::array<int, 2>& markersToBeSwaped);
     //void updateColors(int index);
@@ -30,6 +33,9 @@ signals:
     void lineRemoved(int index);
 
 private:
+    int currentStep;
+    QVector<int> selectedMarkersIndexes;
+    const Data * data;
     QGridLayout *layout;
     // QVector that stores "remove" buttons
     QVector<QPushButton*> buttonVector;

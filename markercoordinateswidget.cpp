@@ -10,12 +10,14 @@ MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget 
     x = new QLabel("x = ", this);
     y = new QLabel("y = ", this);
     z = new QLabel("z = ", this);
+    timeStep = new QLabel("Time steps ",this);
     x->setMinimumWidth(60);
     x->setAlignment(Qt::AlignCenter);
     y->setMinimumWidth(60);
     y->setAlignment(Qt::AlignCenter);
     z->setMinimumWidth(60);
     z->setAlignment(Qt::AlignCenter);
+    timeStep->setAlignment(Qt::AlignCenter);
     markerColor = new QLineEdit("", this);
     markerColor->setReadOnly(true);
     QPalette palette;
@@ -24,11 +26,12 @@ MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget 
     layout = new QGridLayout(this);
     layout->setSpacing(0);
     setLayout(layout);
-    layout->addWidget(markerNumber, 0, 0);
-    layout->addWidget(markerColor, 1, 0);
-    layout->addWidget(x, 0, 1);
-    layout->addWidget(y, 1, 1);
-    layout->addWidget(z, 2, 1);
+    layout->addWidget(timeStep, 0, 1);
+    layout->addWidget(markerNumber, 1, 0);
+    layout->addWidget(markerColor, 2, 0);
+    layout->addWidget(x, 1, 1);
+    layout->addWidget(y, 2, 1);
+    layout->addWidget(z, 3, 1);
 }
 
 MarkerCoordinatesWidget::~MarkerCoordinatesWidget() {
@@ -62,7 +65,7 @@ void MarkerCoordinatesWidget::addStepCoordinates() {
     for(int i = 0 ; i < 3 ; i++) {
         coordinatesColumns[i].append(new QLineEdit(this));
         coordinatesColumns[i].last()->setReadOnly(true);
-        layout->addWidget(coordinatesColumns.at(i).last(), i, coordinatesColumns.at(i).size() + 1);
+        layout->addWidget(coordinatesColumns.at(i).last(), i + 1, coordinatesColumns.at(i).size() + 1);
     }
 }
 

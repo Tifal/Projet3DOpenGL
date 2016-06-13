@@ -26,8 +26,10 @@ private:
     QLabel * x;
     QLabel * y;
     QLabel * z;
+    QLabel *timeStep;
     QLineEdit * markerColor;
     std::array<QVector<QLineEdit *>, 3> coordinatesColumns;
+    QVector<QLabel *> timeStepsLabels;
     QGridLayout *layout;
 };
 

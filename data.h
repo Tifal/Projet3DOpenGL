@@ -5,6 +5,7 @@
 #include <QFile>
 #include <iostream>
 #include <QTextStream>
+#include <QFileDialog>
 #include "marker.h"
 
 class Data
@@ -21,6 +22,8 @@ public:
     void displayData() const;
     void loadData(QString& fileName);
     void saveData(QString& fileName);
+    void saveData();
+    void saveDataSkeleton(const QVector<std::array<int, 2>>& linkedMarkersIndexes);
     //const QVector<float>& get1Vector(int index);
     const QVector<QVector<Marker>>* getDataCoordinates() const;
     const QVector<Marker>& get1Vector(int index) const;

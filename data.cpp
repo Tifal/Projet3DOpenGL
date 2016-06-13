@@ -55,6 +55,30 @@ void Data::saveData(QString& fileName) {
     }
 }
 
+void Data::saveData() {
+    QString fileName = QFileDialog::getSaveFileName();
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    for(auto line : dataCoordinates) {
+        for(auto cell : line) {
+            out << cell.getX() << "\t" << cell.getY() << "\t" << cell.getZ() << "\t";
+        }
+        out << "\n";
+    }
+}
+
+void Data::saveDataSkeleton(const QVector<std::array<int, 2>>& linkedMarkersIndexes) {
+    QString fileName = QFileDialog::getSaveFileName();
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    for(int i = 0 ; i < linkedMarkersIndexes.size() ; i++) {
+        out << linkedMarkersIndexes.at(i).at(0) << "\t" << linkedMarkersIndexes.at(i).at(1) << "\t";
+        out << "\n";
+    }
+}
+
 const QVector<QVector<Marker>>* Data::getDataCoordinates() const {
     return &dataCoordinates;
 }

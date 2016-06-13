@@ -9,8 +9,9 @@ ProgramWindow::ProgramWindow() : QWidget()
 {
     setFixedSize(800, 800);
     setWindowTitle("Test");
-
+    //instruction called when loading new data
     QString s("files/comb_traj_20160219_121123.dat");
+    //instruction called when loading new data
     data.loadData(s);
 
     slider = new QSlider(Qt::Orientation::Horizontal, this);
@@ -31,7 +32,8 @@ ProgramWindow::ProgramWindow() : QWidget()
     pauseButton->setIcon(QIcon("icons/Fairytale_player_pause.svg"));
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
-
+    stepForward = new QPushButton(this);
+    stepBackward = new QPushButton(this);
 
     coordinatesWindow = new CoordinatesWindow;
     swapWindow = new SwapWindow;
@@ -43,12 +45,14 @@ ProgramWindow::ProgramWindow() : QWidget()
     QRadioButton *displayChoice2=new QRadioButton("Rows = Markers / Columns = Timesteps",this);
 
     QGridLayout *layout = new QGridLayout(this);
-    layout->addWidget(screen, 0, 0, 1, 3);
-    layout->addWidget(label,1,0,1,3);
-    layout->addWidget(slider,2,0,1,3);
+    layout->addWidget(screen, 0, 0, 1, 5);
+    layout->addWidget(label,1,0,1,5);
+    layout->addWidget(slider,2,0,1,5);
     layout->addWidget(demoButton,3,0);
     layout->addWidget(pauseButton,3,1);
     layout->addWidget(stopButton,3,2);
+    layout->addWidget(stepBackward, 3, 3);
+    layout->addWidget(stepForward, 3, 4);
 
     frontSideCamera = new QPushButton("front side", this);
     backSideCamera = new QPushButton("back side", this);
@@ -57,9 +61,12 @@ ProgramWindow::ProgramWindow() : QWidget()
     selectModeButton = new QPushButton("select markers",this);
     linkModeButton = new QPushButton("link markers",this);
     displayLinksButton = new QCheckBox("display links", this);
-    QPushButton *eraseLinks = new QPushButton("erase links", this);
+    eraseOneLinkButton = new QPushButton("erase one link", this);
+    QPushButton *eraseLinks = new QPushButton("erase all links", this);
+    saveSkeletonButton = new QPushButton("save skeleton", this);
     formerSteps = new QPushButton("display former steps", this);
     swapMarkersButton = new QPushButton("swap markers", this);
+    swapModeButton = new QPushButton("swap mode", this);
     numberOfFormerSteps = new QComboBox(this);
     displayFormerStepsSelectedMarkers = new QCheckBox("display for selected markers only", this);
     formerStepsLine = new QRadioButton("lines", this);
@@ -73,10 +80,12 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     selectModeButton->setCheckable(true);
     linkModeButton->setCheckable(true);
+    eraseOneLinkButton->setCheckable(true);
     displayLinksButton->setCheckable(true);
     displayLinksButton->setChecked(true);
     formerSteps->setCheckable(true);
     furtherSteps->setCheckable(true);
+    swapModeButton->setCheckable(true);
 
     setLayout(layout);
 
@@ -84,15 +93,20 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(demoButton, SIGNAL(clicked(bool)), this, SLOT(startDemo()));
     connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
     connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
+    connect(stepBackward, SIGNAL(pressed()), this, SLOT(decrementSlider()));
+    connect(stepForward, SIGNAL(pressed()), this, SLOT(incrementSlider()));
     connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
     connect(frontSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToFrontSide()));
     connect(backSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToBackSide()));
     connect(leftSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToLeftSide()));
     connect(rightSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToRightSide()));
-    connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
-    connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(selectOrLinkMode()));
+    connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(eraseOneLinkButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(swapModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
     connect(displayLinksButton, SIGNAL(clicked(bool)), this, SLOT(enableDisplayLinks()));
     connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
+    connect(saveSkeletonButton, SIGNAL(clicked(bool)), this, SLOT(saveSkeleton()));
     connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesSwapWindows(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
     connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
@@ -110,13 +124,20 @@ ProgramWindow::ProgramWindow() : QWidget()
     connect(screen, SIGNAL(markerToBeSwappedPicked(int,int,int)), swapWindow, SLOT(addSelectedMarker(int,int,int)));
     connect(screen, SIGNAL(removeMarkerToBeSwapped(int)), swapWindow, SLOT(removeSelectedMarker(int)));
     connect(screen, SIGNAL(changeColorMarkerToBeSwapped(int,int)), swapWindow, SLOT(changeMarkerColorToBeSwapped(int,int)));
-    screen->setData(data.getDataCoordinates());
-
-    swapWindow->setData(data.getDataCoordinates());
+    //screen->setData(data.getDataCoordinates());
+    //instruction called when loading new data
+    screen->setData(&data);
+    //swapWindow->setData(data.getDataCoordinates());
+    //instruction called when loading new data
+    swapWindow->setData(&data);
+    //instruction called when loading new data
+    coordinatesWindow->setData(&data);
     //swapWindow->setNumberOfFurtherSteps(10);
 
     slider->setMinimum(0);
+    //instruction called when loading new data
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
+    //instruction called when loading new data
     for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
         numberOfFormerSteps->addItem(QString::number(i));
         //numberOfFurtherSteps->addItem(QString::number(i));
@@ -156,14 +177,23 @@ ProgramWindow::ProgramWindow() : QWidget()
     QWidget *selectionTab = new QWidget(tabWidget);
     QVBoxLayout *selectionTabLayout = new QVBoxLayout(selectionTab);
     selectionTabLayout->addWidget(selectModeButton);
-    selectionTabLayout->addWidget(coordinatesWindow);
+    //selectionTabLayout->addWidget(coordinatesWindow);
+    QScrollArea *scrollAreaSelection = new QScrollArea(selectionTab);
+    scrollAreaSelection->setGeometry(500, 500, 600, 400);
+    scrollAreaSelection->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    scrollAreaSelection->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    scrollAreaSelection->setWidgetResizable(true);
+    scrollAreaSelection->setWidget(coordinatesWindow);
+    selectionTabLayout->addWidget(scrollAreaSelection);
     selectionTab->setLayout(selectionTabLayout);
 
     QWidget *linkTab = new QWidget(tabWidget);
     QGridLayout *linkTabLayout = new QGridLayout(linkTab);
     linkTabLayout->addWidget(linkModeButton, 0, 0);
     linkTabLayout->addWidget(displayLinksButton, 0, 1);
-    linkTabLayout->addWidget(eraseLinks, 0, 2);
+    linkTabLayout->addWidget(eraseOneLinkButton, 0, 2);
+    linkTabLayout->addWidget(eraseLinks, 0, 3);
+    linkTabLayout->addWidget(saveSkeletonButton, 1, 0);
     linkTab->setLayout(linkTabLayout);
 
     QWidget *formerFurtherStepsTab = new QWidget(tabWidget);
@@ -179,16 +209,17 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     QWidget *swappingTab = new QWidget(tabWidget);
     QGridLayout *swappingTabLayout = new QGridLayout(swappingTab);
-    swappingTabLayout->addWidget(swapLabel,0,0);
-    swappingTabLayout->addWidget(numberOfSwapedSteps,0,1);
-    swappingTabLayout->addWidget(swapMarkersButton, 0, 2);
-    QScrollArea *scrollArea = new QScrollArea(swappingTab);
-    scrollArea->setGeometry(500, 500, 600, 400);
-    scrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-    scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(swapWindow);
-    swappingTabLayout->addWidget(scrollArea, 1, 0, 1, 3);
+    swappingTabLayout->addWidget(swapModeButton,0, 0);
+    swappingTabLayout->addWidget(swapLabel,0,1);
+    swappingTabLayout->addWidget(numberOfSwapedSteps,0,2);
+    swappingTabLayout->addWidget(swapMarkersButton, 0, 3);
+    QScrollArea *scrollAreaSwapping = new QScrollArea(swappingTab);
+    scrollAreaSwapping->setGeometry(500, 500, 600, 400);
+    scrollAreaSwapping->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    scrollAreaSwapping->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    scrollAreaSwapping->setWidgetResizable(true);
+    scrollAreaSwapping->setWidget(swapWindow);
+    swappingTabLayout->addWidget(scrollAreaSwapping, 1, 0, 1, 4);
     swappingTab->setLayout(swappingTabLayout);
 
     tabWidget->addTab(cameraTab, "Camera");
@@ -197,7 +228,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     tabWidget->addTab(linkTab, "Link");
     tabWidget->addTab(formerFurtherStepsTab, "Former/Further Steps");
     tabWidget->addTab(swappingTab, "Swapping");
-    layout->addWidget(tabWidget, 4, 0, 1, 3);
+    layout->addWidget(tabWidget, 4, 0, 1, 5);
 
     /*
      *
@@ -220,12 +251,12 @@ void ProgramWindow::configureScreen() {
  * @param index
  */
 
-
 void ProgramWindow::changeStep(int index) {
     screen->setCurrentStep(index);
     label->setText("Step number : " + QString::number(index + 1));
-    updateWindowCoordinates();
     swapWindow->setCurrentStep(index);
+    coordinatesWindow->setCurrentStep(index);
+    //updateWindowCoordinates();
     if(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
         while(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
            numberOfSwapedSteps->removeItem(numberOfSwapedSteps->count()-1);
@@ -242,16 +273,8 @@ void ProgramWindow::changeStep(int index) {
 }
 
 void ProgramWindow::fillCoordinatesSwapWindows(int index, int color) {
-    coordinatesWindow->addLineCoordinates(data.get1Marker(slider->value(), index), color);
+    coordinatesWindow->addLineCoordinates(index, color);
     //swapWindow->addSelectedMarker(index, color);
-}
-
-void ProgramWindow::updateWindowCoordinates() {
-    QVector<Marker> markerVector;
-    for(auto index : screen->getSelectedMarkerIndexes()) {
-        markerVector.append(data.get1Marker(slider->value(), index));
-    }
-    coordinatesWindow->updateCoordinates(markerVector);
 }
 
 
@@ -307,6 +330,14 @@ void ProgramWindow::stopDemo() {
     stopButton->setDisabled(true);
 }
 
+void ProgramWindow::incrementSlider() {
+    slider->setValue(slider->value() + 1);
+}
+
+void ProgramWindow::decrementSlider() {
+    slider->setValue(slider->value() - 1);
+}
+
 void ProgramWindow::changeChoice1(){
    choice="choice1";
 }
@@ -330,25 +361,61 @@ void ProgramWindow::displayFile(){
     }
 }
 
-void ProgramWindow::selectOrLinkMode() {
+void ProgramWindow::pickMode() {
     if(sender() == (QObject*)selectModeButton) {
         if(selectModeButton->isChecked()) {
             screen->setSelectMarkerMode(true);
             screen->setLinkMarkerMode(false);
+            screen->setEraseOneLinkMode(false);
+            screen->setSwapMode(false);
             linkModeButton->setChecked(false);
+            eraseOneLinkButton->setChecked(false);
+            swapModeButton->setChecked(false);
         }
         else {
             screen->setSelectMarkerMode(false);
         }
     }
-    else {
+    else if(sender() == (QObject*)linkModeButton) {
         if(linkModeButton->isChecked()) {
             screen->setLinkMarkerMode(true);
             screen->setSelectMarkerMode(false);
+            screen->setEraseOneLinkMode(false);
+            screen->setSwapMode(false);
             selectModeButton->setChecked(false);
+            eraseOneLinkButton->setChecked(false);
+            swapModeButton->setChecked(false);
         }
         else {
             screen->setLinkMarkerMode(false);
+        }
+    }
+    else if(sender() == (QObject*)eraseOneLinkButton) {
+        if(eraseOneLinkButton->isChecked()) {
+            screen->setEraseOneLinkMode(true);
+            screen->setSelectMarkerMode(false);
+            screen->setLinkMarkerMode(false);
+            screen->setSwapMode(false);
+            selectModeButton->setChecked(false);
+            linkModeButton->setChecked(false);
+            swapModeButton->setChecked(false);
+        }
+        else {
+            screen->setEraseOneLinkMode(false);
+        }
+    }
+    else if(sender() == (QObject*)swapModeButton){
+        if(swapModeButton->isChecked()) {
+            screen->setSwapMode(true);
+            screen->setSelectMarkerMode(false);
+            screen->setLinkMarkerMode(false);
+            screen->setEraseOneLinkMode(false);
+            selectModeButton->setChecked(false);
+            linkModeButton->setChecked(false);
+            eraseOneLinkButton->setChecked(false);
+        }
+        else {
+            screen->setSwapMode(false);
         }
     }
 }
@@ -398,6 +465,10 @@ void ProgramWindow::enableDisplayFormerStepsSelectedMarkers() {
     }
 }
 
+void ProgramWindow::saveSkeleton() {
+    data.saveDataSkeleton(screen->getLinkedMarkersIndexes());
+}
+
 //void ProgramWindow::keyPressEvent(QKeyEvent *event) {
 void ProgramWindow::swapMarkers() {
     std::array<int, 2> selectedMarkersToBeSwaped;
@@ -413,7 +484,5 @@ void ProgramWindow::swapMarkers() {
             coordinatesWindow->swapCoordinates(selectedMarkersToBeSwaped);
        // }
     }
-    QString s("nom");
-    data.saveData(s);
     screen->update();
 }
