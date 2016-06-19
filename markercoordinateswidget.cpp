@@ -10,7 +10,7 @@ MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget 
     x = new QLabel("x = ", this);
     y = new QLabel("y = ", this);
     z = new QLabel("z = ", this);
-    timeStep = new QLabel("Time steps ",this);
+    timeStep = new QLabel("Time step n° ",this);
     x->setMinimumWidth(60);
     x->setAlignment(Qt::AlignCenter);
     y->setMinimumWidth(60);
@@ -36,6 +36,9 @@ MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget 
 
 MarkerCoordinatesWidget::~MarkerCoordinatesWidget() {
     //risque de bug
+    for(auto label : timeStepsLabels) {
+        delete label;
+    }
     delete markerColor;
     delete markerNumber;
     delete x;
@@ -89,5 +92,21 @@ void MarkerCoordinatesWidget::setMarkerColor(int color) {
     QPalette palette;
     palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(color)));
     markerColor->setPalette(palette);
+}
+
+void MarkerCoordinatesWidget::addStepLabel() {
+    timeStepsLabels.append(new QLabel("", this));
+    timeStepsLabels.last()->setAlignment(Qt::AlignCenter);
+    layout->addWidget(timeStepsLabels.last(), 0, 1 + timeStepsLabels.size());
+}
+
+void MarkerCoordinatesWidget::removeStepLabel() {
+    layout->removeWidget(timeStepsLabels.last());
+    delete timeStepsLabels.last();
+    timeStepsLabels.remove(timeStepsLabels.size() - 1);
+}
+
+void MarkerCoordinatesWidget::updateStepLabel(int index, int stepNumber) {
+    timeStepsLabels.at(index)->setText(QString::number(stepNumber));
 }
 

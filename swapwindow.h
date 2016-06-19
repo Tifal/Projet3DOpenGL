@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QScrollArea>
+#include <cmath>
 #include "markercoordinateswidget.h"
 #include "data.h"
 
@@ -17,6 +18,8 @@ public:
     void setData(const Data *pointerToData);
     void updateCoordinates();
     void setCurrentStep(int step);
+    int numberOfColumnsToAdd();
+    int getNumberOfFurtherStepsToUpdate();
 
 public slots:
     void setNumberOfFurtherSteps(int number);
@@ -32,6 +35,7 @@ private:
     std::array<int, 2> markersToBeSwappedIndexes;
     int currentStep;
     int numberOfFurtherSteps;
+    int numberOfFurtherStepsToUpdate;
 };
 
 #endif // SWAPWINDOW_H

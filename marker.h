@@ -13,7 +13,6 @@ public:
     int getRedId() const;
     int getGreenId() const;
     int getBlueId() const;
-    void setX(int n);
 
 private:
     float markerCoordinates[3];

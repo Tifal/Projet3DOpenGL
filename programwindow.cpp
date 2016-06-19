@@ -7,15 +7,11 @@ static QString choice="choice1";
 
 ProgramWindow::ProgramWindow() : QWidget()
 {
-    setFixedSize(800, 800);
+    setMinimumSize(800, 800);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setWindowTitle("Test");
-    //instruction called when loading new data
-    QString s("files/comb_traj_20160219_121123.dat");
-    //instruction called when loading new data
-    data.loadData(s);
 
     slider = new QSlider(Qt::Orientation::Horizontal, this);
-
     screen = new DisplayWindow(this);
 
     label = new QLabel("Step number : 1", this);
@@ -38,11 +34,11 @@ ProgramWindow::ProgramWindow() : QWidget()
     coordinatesWindow = new CoordinatesWindow;
     swapWindow = new SwapWindow;
 
-    QPushButton *resetButton = new QPushButton("Reset Camera", this);
+    resetButton = new QPushButton("Reset Camera", this);
 
-    QPushButton *displayFileCoordinates=new QPushButton("Display file coordinates",this);
-    QRadioButton *displayChoice1=new QRadioButton("Rows = Timesteps / Columns = Markers",this);
-    QRadioButton *displayChoice2=new QRadioButton("Rows = Markers / Columns = Timesteps",this);
+    displayFileCoordinates=new QPushButton("Display file coordinates",this);
+    displayChoice1=new QRadioButton("Rows = Timesteps / Columns = Markers",this);
+    displayChoice2=new QRadioButton("Rows = Markers / Columns = Timesteps",this);
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(screen, 0, 0, 1, 5);
@@ -62,7 +58,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     linkModeButton = new QPushButton("link markers",this);
     displayLinksButton = new QCheckBox("display links", this);
     eraseOneLinkButton = new QPushButton("erase one link", this);
-    QPushButton *eraseLinks = new QPushButton("erase all links", this);
+    eraseLinks = new QPushButton("erase all links", this);
     saveSkeletonButton = new QPushButton("save skeleton", this);
     formerSteps = new QPushButton("display former steps", this);
     swapMarkersButton = new QPushButton("swap markers", this);
@@ -76,8 +72,6 @@ ProgramWindow::ProgramWindow() : QWidget()
     //numberOfFurtherSteps = new QComboBox(this);
     numberOfSwapedSteps = new QComboBox(this);
 
-
-
     selectModeButton->setCheckable(true);
     linkModeButton->setCheckable(true);
     eraseOneLinkButton->setCheckable(true);
@@ -89,65 +83,9 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     setLayout(layout);
 
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeStep(int)));
-    connect(demoButton, SIGNAL(clicked(bool)), this, SLOT(startDemo()));
-    connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
-    connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
-    connect(stepBackward, SIGNAL(pressed()), this, SLOT(decrementSlider()));
-    connect(stepForward, SIGNAL(pressed()), this, SLOT(incrementSlider()));
-    connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
-    connect(frontSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToFrontSide()));
-    connect(backSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToBackSide()));
-    connect(leftSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToLeftSide()));
-    connect(rightSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToRightSide()));
-    connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
-    connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
-    connect(eraseOneLinkButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
-    connect(swapModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
-    connect(displayLinksButton, SIGNAL(clicked(bool)), this, SLOT(enableDisplayLinks()));
-    connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
-    connect(saveSkeletonButton, SIGNAL(clicked(bool)), this, SLOT(saveSkeleton()));
-    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesSwapWindows(int, int)));
-    connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
-    connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
-    connect(numberOfFormerSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFormerStepsDisplayed(int)));
-    connect(displayFormerStepsSelectedMarkers, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerStepsSelectedMarkers()));
-    connect(formerStepsLine, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
-    connect(formerStepsPoints, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
-    connect(furtherSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFurtherSteps()));
-    connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFurtherStepsDisplayed(int)));
-    connect(swapMarkersButton, SIGNAL(clicked(bool)), this, SLOT(swapMarkers()));
-    connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
-    connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
-    connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
-    connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
-    connect(screen, SIGNAL(markerToBeSwappedPicked(int,int,int)), swapWindow, SLOT(addSelectedMarker(int,int,int)));
-    connect(screen, SIGNAL(removeMarkerToBeSwapped(int)), swapWindow, SLOT(removeSelectedMarker(int)));
-    connect(screen, SIGNAL(changeColorMarkerToBeSwapped(int,int)), swapWindow, SLOT(changeMarkerColorToBeSwapped(int,int)));
-    //screen->setData(data.getDataCoordinates());
-    //instruction called when loading new data
-    screen->setData(&data);
-    //swapWindow->setData(data.getDataCoordinates());
-    //instruction called when loading new data
-    swapWindow->setData(&data);
-    //instruction called when loading new data
-    coordinatesWindow->setData(&data);
-    //swapWindow->setNumberOfFurtherSteps(10);
-
     slider->setMinimum(0);
-    //instruction called when loading new data
-    slider->setMaximum(data.getDataCoordinatesSize() - 1);
-    //instruction called when loading new data
-    for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
-        numberOfFormerSteps->addItem(QString::number(i));
-        //numberOfFurtherSteps->addItem(QString::number(i));
-        numberOfSwapedSteps->addItem(QString::number(i));
-    }
-    numberOfFormerSteps->setCurrentIndex(10);
-    //screen->setNumberOfFormerStepsDisplayed(10);
-    //numberOfFurtherSteps->setCurrentIndex(10);
-
-    numberOfSwapedSteps->setCurrentIndex(10);
+    numberOfFormerSteps->setCurrentIndex(0);
+    numberOfSwapedSteps->setCurrentIndex(0);
 
     filewindow=new FileWindow;
 
@@ -234,6 +172,12 @@ ProgramWindow::ProgramWindow() : QWidget()
      *
      */
     show();
+    configureScreen();
+}
+
+ProgramWindow::ProgramWindow(QString fileName) : ProgramWindow() {
+    setData(fileName);
+    connectWidgets();
 }
 
 /** Method that initializes the screen.
@@ -244,6 +188,57 @@ void ProgramWindow::configureScreen() {
     screen->setViewPort();
     screen->setProjection();
     screen->setModelView();
+}
+
+void ProgramWindow::setData(QString fileName) {
+    data.loadData(fileName);
+    screen->setData(&data);
+    swapWindow->setData(&data);
+    coordinatesWindow->setData(&data);
+    slider->setMaximum(data.getDataCoordinatesSize() - 1);
+    for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
+        numberOfFormerSteps->addItem(QString::number(i));
+        numberOfSwapedSteps->addItem(QString::number(i));
+    }
+    //connectWidgets();
+}
+
+void ProgramWindow::connectWidgets() {
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(changeStep(int)));
+    connect(demoButton, SIGNAL(clicked(bool)), this, SLOT(startDemo()));
+    connect(pauseButton, SIGNAL(clicked(bool)), this, SLOT(pauseDemo()));
+    connect(stopButton, SIGNAL(clicked(bool)), this, SLOT(stopDemo()));
+    connect(stepBackward, SIGNAL(pressed()), this, SLOT(decrementSlider()));
+    connect(stepForward, SIGNAL(pressed()), this, SLOT(incrementSlider()));
+    connect(resetButton, SIGNAL(clicked(bool)), screen, SLOT(resetCamera()));
+    connect(frontSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToFrontSide()));
+    connect(backSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToBackSide()));
+    connect(leftSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToLeftSide()));
+    connect(rightSideCamera, SIGNAL(clicked(bool)), screen, SLOT(moveCameraToRightSide()));
+    connect(selectModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(linkModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(eraseOneLinkButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(swapModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
+    connect(displayLinksButton, SIGNAL(clicked(bool)), this, SLOT(enableDisplayLinks()));
+    connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
+    connect(saveSkeletonButton, SIGNAL(clicked(bool)), this, SLOT(saveSkeleton()));
+    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesSwapWindows(int, int)));
+    connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
+    connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
+    connect(numberOfFormerSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFormerStepsDisplayed(int)));
+    connect(displayFormerStepsSelectedMarkers, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerStepsSelectedMarkers()));
+    connect(formerStepsLine, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
+    connect(formerStepsPoints, SIGNAL(toggled(bool)), this, SLOT(choosePointsLinesFormerSteps()));
+    connect(furtherSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFurtherSteps()));
+    connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFurtherStepsDisplayed(int)));
+    connect(swapMarkersButton, SIGNAL(clicked(bool)), this, SLOT(swapMarkers()));
+    connect(numberOfSwapedSteps, SIGNAL(currentIndexChanged(int)), swapWindow, SLOT(setNumberOfFurtherSteps(int)));
+    connect(displayChoice1,SIGNAL(toggled(bool)),this,SLOT(changeChoice1()));
+    connect(displayChoice2,SIGNAL(toggled(bool)),this,SLOT(changeChoice2()));
+    connect(displayFileCoordinates,SIGNAL(clicked(bool)),this,SLOT(displayFile()));
+    connect(screen, SIGNAL(markerToBeSwappedPicked(int,int,int)), swapWindow, SLOT(addSelectedMarker(int,int,int)));
+    connect(screen, SIGNAL(removeMarkerToBeSwapped(int)), swapWindow, SLOT(removeSelectedMarker(int)));
+    connect(screen, SIGNAL(changeColorMarkerToBeSwapped(int,int)), swapWindow, SLOT(changeMarkerColorToBeSwapped(int,int)));
 }
 
 /** Method that changes the step of the view.
@@ -257,7 +252,7 @@ void ProgramWindow::changeStep(int index) {
     swapWindow->setCurrentStep(index);
     coordinatesWindow->setCurrentStep(index);
     //updateWindowCoordinates();
-    if(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
+    /*if(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
         while(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
            numberOfSwapedSteps->removeItem(numberOfSwapedSteps->count()-1);
         }
@@ -266,10 +261,20 @@ void ProgramWindow::changeStep(int index) {
         while(numberOfSwapedSteps->count()<data.getDataCoordinatesSize()-slider->value()){
             numberOfSwapedSteps->addItem(QString::number(numberOfSwapedSteps->count()));
         }
-    }
-    swapWindow->updateCoordinates();
+    }*/
+    //swapWindow->updateCoordinates();
 
     screen->update();
+}
+
+void ProgramWindow::keyPressEvent(QKeyEvent *event) {
+    setFocus();
+    if(event->key() == Qt::Key_Left) {
+        slider->setValue(slider->value() - 1);
+    }
+    if(event->key() == Qt::Key_Right) {
+        slider->setValue(slider->value() + 1);
+    }
 }
 
 void ProgramWindow::fillCoordinatesSwapWindows(int index, int color) {
@@ -469,20 +474,20 @@ void ProgramWindow::saveSkeleton() {
     data.saveDataSkeleton(screen->getLinkedMarkersIndexes());
 }
 
-//void ProgramWindow::keyPressEvent(QKeyEvent *event) {
 void ProgramWindow::swapMarkers() {
-    std::array<int, 2> selectedMarkersToBeSwaped;
-    selectedMarkersToBeSwaped[0] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(0));
-    selectedMarkersToBeSwaped[1] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(1));
-    if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
-        for(int i = slider->value() ; i < slider->value() + numberOfSwapedSteps->currentIndex() + 1 ; i++) {
-            //data.swapMarkersData(screen->getMarkersToBeSwaped(), slider->value());
-            data.swapMarkersData(screen->getMarkersToBeSwaped(), i);
+    std::array<int, 2> markersToBeSwapped = screen->getMarkersToBeSwaped();
+    std::array<int, 2> selectedMarkersToBeSwapped;
+    int numberOfStepsToBeSwapped = swapWindow->getNumberOfFurtherStepsToUpdate();
+    selectedMarkersToBeSwapped[0] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(0));
+    selectedMarkersToBeSwapped[1] = screen->getSelectedMarkerIndexes().indexOf(screen->getMarkersToBeSwaped().at(1));
+    if(markersToBeSwapped[0] != -1 && markersToBeSwapped[1] != -1) {
+        for(int i = 0 ; i <= numberOfStepsToBeSwapped ; i++) {
+            data.swapMarkersData(markersToBeSwapped, slider->value() + i);
+            swapWindow->updateCoordinates();
         }
-        swapWindow->updateCoordinates();
-        //if(selectedMarkersToBeSwaped[0] != -1 && selectedMarkersToBeSwaped[1] != -1) {
-            coordinatesWindow->swapCoordinates(selectedMarkersToBeSwaped);
-       // }
+        if(selectedMarkersToBeSwapped[0] != -1 && selectedMarkersToBeSwapped[1] != -1) {
+            coordinatesWindow->swapCoordinates(selectedMarkersToBeSwapped);
+        }
+        screen->update();
     }
-    screen->update();
 }

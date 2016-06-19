@@ -124,23 +124,25 @@ void DisplayWindow::paintGL()
     glPointSize(3.0);
     glClearColor(0.0, 0.0 ,0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    paintMarkers();
-    paintMarkersWithRedCross();
-    if(lineBeingDrawn) {
-        paintMarkerWithCross();
+    if(data != NULL) {
+        paintMarkers();
+        paintMarkersWithRedCross();
+        if(lineBeingDrawn) {
+            paintMarkerWithCross();
+        }
+        if(displayLinks) {
+            paintLinkedMarkers();
+        }
+        paintSelectedMarkers();
+        if(displayFormerSteps) {
+            paintFormerSteps();
+        }
+        if(displayFurtherSteps) {
+            paintFurtherSteps();
+        }
+        paintAxes();
+        glFlush();
     }
-    if(displayLinks) {
-        paintLinkedMarkers();
-    }
-    paintSelectedMarkers();
-    if(displayFormerSteps) {
-        paintFormerSteps();
-    }
-    if(displayFurtherSteps) {
-        paintFurtherSteps();
-    }
-    paintAxes();
-    glFlush();
 }
 
 void DisplayWindow::paintMarkers() {
@@ -620,6 +622,7 @@ void DisplayWindow::setFormerStepsPoints(bool boolean) {
 
 void DisplayWindow::setFormerStepsSelectedMarkers(bool boolean) {
     formerStepsSelectedMarkers = boolean;
+    update();
 }
 
 void DisplayWindow::setEraseOneLinkMode(bool boolean) {

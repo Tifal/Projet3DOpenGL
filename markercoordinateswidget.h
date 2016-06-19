@@ -20,6 +20,9 @@ public:
     int getSizeSteps();
     void setMarkerNumber(int number);
     void setMarkerColor(int color);
+    void addStepLabel();
+    void removeStepLabel();
+    void updateStepLabel(int index, int stepNumber);
 
 private:
     QLabel * markerNumber;

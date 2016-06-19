@@ -24,11 +24,14 @@ class ProgramWindow : public QWidget
 
 public:
     ProgramWindow();
+    ProgramWindow(QString fileName);
     void configureScreen();
+    void connectWidgets();
+    void setData(QString fileName);
     void updateWindowCoordinates();
 
 protected:
-    //void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 public slots:
     void changeStep(int index);
@@ -75,8 +78,10 @@ private:
     QPushButton *displayFileCoordinates;
     QPushButton *selectModeButton;
     QPushButton *linkModeButton;
+    QPushButton *eraseLinks;
     QPushButton *eraseOneLinkButton;
     QPushButton *saveSkeletonButton;
+    QPushButton *resetButton;
     QCheckBox *displayLinksButton;
     QCheckBox *displayFormerStepsSelectedMarkers;
     QPushButton *formerSteps;

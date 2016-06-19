@@ -28,6 +28,7 @@ void Data::displayData() const {
  */
 
 void Data::loadData(QString& fileName) {
+    dataCoordinates =   QVector<QVector<Marker>>();
     QFile fichier(fileName);
     fichier.open(QIODevice::ReadOnly);
     QString s;
@@ -108,7 +109,7 @@ int Data::getDataCoordinatesSize() const {
 
 void Data::swapMarkersData(const std::array<int, 2>& markersIndexes, int step) {
     // the first parameter of the constructor is an index which is used to compute the color identifier of the marker
-    // see the comments of the pickMarker method to understand why 1 is added to this identifier
+    // see the comments of the pickMarker method from the DisplayWindow class to understand why 1 is added to this identifier
     Marker temp(markersIndexes[1] + 1, dataCoordinates[step][markersIndexes.at(0)]);
     dataCoordinates[step][markersIndexes.at(0)] = Marker(markersIndexes[0] + 1, dataCoordinates[step][markersIndexes.at(1)]);
     dataCoordinates[step][markersIndexes.at(1)] = temp;

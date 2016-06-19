@@ -12,7 +12,8 @@ SwapWindow::SwapWindow(QWidget *parent) : QWidget(parent)
     setWindowTitle("swap window");
     layout = new QVBoxLayout(this);
     currentStep = 0;
-    numberOfFurtherSteps = 10;
+    numberOfFurtherSteps = 0;
+    numberOfFurtherStepsToUpdate = 0;
     layout->setSpacing(0);
     setLayout(layout);
     for(int i = 0 ; i < 2 ; i++) {
@@ -33,7 +34,9 @@ void SwapWindow::addSelectedMarker(int position, int index, int color) {
     layout->addWidget(markerCoordinatesRows.last());
     //selectedMarkersIndexes.append(index);
     markersToBeSwappedIndexes[position] = index;
-    for(int i = 0 ; i <= numberOfFurtherSteps ; i++) {
+    for(int i = 0 ; i <= numberOfFurtherStepsToUpdate ; i++) {
+        markerCoordinatesRows.last()->addStepLabel();
+        markerCoordinatesRows.last()->updateStepLabel(i, currentStep + i + 1);
         markerCoordinatesRows.last()->addStepCoordinates();
         markerCoordinatesRows.last()->setStepCoordinates(i, data->get1Marker(currentStep + i, index));
     }
@@ -59,7 +62,8 @@ void SwapWindow::setData(const Data * pointerToData) {
 void SwapWindow::updateCoordinates() {
     for(int i=0; i<2;i++){
         if(markersToBeSwappedIndexes.at(i)!=-1){
-            for(int j = 0 ; j <= numberOfFurtherSteps ; j++) {
+            for(int j = 0 ; j <= numberOfFurtherStepsToUpdate ; j++) {
+                markerCoordinatesRows.at(i)->updateStepLabel(j, currentStep + j + 1);
                 markerCoordinatesRows.at(i)->setStepCoordinates(j, data->get1Marker(currentStep + j, markersToBeSwappedIndexes.at(i)));
             }
         }
@@ -68,28 +72,77 @@ void SwapWindow::updateCoordinates() {
 
 void SwapWindow::setCurrentStep(int step) {
     currentStep = step;
+    if(!(data->getDataCoordinatesSize() - 1 > currentStep + numberOfFurtherSteps)) {
+        if(numberOfFurtherStepsToUpdate < data->getDataCoordinatesSize() - currentStep - 1) {
+            for(auto markerToBeSwapped : markerCoordinatesRows) {
+                while(markerToBeSwapped->getSizeSteps() <= data->getDataCoordinatesSize() - currentStep - 1) {
+                    markerToBeSwapped->addStepCoordinates();
+                    markerToBeSwapped->addStepLabel();
+                }
+            }
+        }
+        else {
+            for(auto markerToBeSwapped : markerCoordinatesRows) {
+                while(markerToBeSwapped->getSizeSteps() > data->getDataCoordinatesSize() - currentStep) {
+                    markerToBeSwapped->removeStepCoordinates();
+                    markerToBeSwapped->removeStepLabel();
+                }
+            }
+        }
+        numberOfFurtherStepsToUpdate = data->getDataCoordinatesSize() - currentStep - 1;
+    }
+    else {
+        for(auto markerToBeSwapped : markerCoordinatesRows) {
+            while(markerToBeSwapped->getSizeSteps() <= numberOfFurtherSteps) {
+                markerToBeSwapped->addStepCoordinates();
+                markerToBeSwapped->addStepLabel();
+            }
+        }
+        numberOfFurtherStepsToUpdate = numberOfFurtherSteps;
+    }
+    updateCoordinates();
 }
 
 void SwapWindow::setNumberOfFurtherSteps(int number) {
     if(number > numberOfFurtherSteps) {
-        for(auto markerSelected : markerCoordinatesRows) {
-            for(int i = 0 ; i < number - numberOfFurtherSteps ; i++) {
-                markerSelected->addStepCoordinates();
+        int numberOfColumnsToAdd = 0;
+        if(data->getDataCoordinatesSize() > number + currentStep) {
+            numberOfColumnsToAdd = number - numberOfFurtherSteps;
+            numberOfFurtherStepsToUpdate = number;
+        }
+        else {
+            numberOfColumnsToAdd = data->getDataCoordinatesSize() - (currentStep + numberOfFurtherSteps) - 1;
+            numberOfFurtherStepsToUpdate = data->getDataCoordinatesSize() - currentStep - 1;
+        }
+        for(auto markerToBeSwapped : markerCoordinatesRows) {
+            for(int i = 0 ; i < numberOfColumnsToAdd ; i++) {
+                markerToBeSwapped->addStepCoordinates();
+                markerToBeSwapped->addStepLabel();
             }
         }
-        numberOfFurtherSteps = number;
         updateCoordinates();
     }
     else {
-        for(auto markerSelected : markerCoordinatesRows) {
-            for(int i = 0 ; i < numberOfFurtherSteps - number ; i++) {
-                markerSelected->removeStepCoordinates();
+        if(data->getDataCoordinatesSize() > number + currentStep) {
+            for(auto markersToBeSwapped : markerCoordinatesRows) {
+                for(int i = 0 ; i < numberOfFurtherStepsToUpdate - number ; i++) {
+                    markersToBeSwapped->removeStepCoordinates();
+                    markersToBeSwapped->removeStepLabel();
+                }
             }
+            numberOfFurtherStepsToUpdate = number;
         }
-        numberOfFurtherSteps = number;
+        else {
+            numberOfFurtherStepsToUpdate = data->getDataCoordinatesSize() - currentStep - 1;
+        }
     }
+    numberOfFurtherSteps = number;
 }
 
 void SwapWindow::changeMarkerColorToBeSwapped(int position, int color) {
     markerCoordinatesRows.at(position)->setMarkerColor(color);
+}
+
+int SwapWindow::getNumberOfFurtherStepsToUpdate() {
+    return numberOfFurtherStepsToUpdate;
 }
