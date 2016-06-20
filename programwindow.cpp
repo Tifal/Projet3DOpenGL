@@ -29,7 +29,9 @@ ProgramWindow::ProgramWindow() : QWidget()
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
     stepForward = new QPushButton(this);
+    stepForward->setIcon(QIcon("icons/forward.png"));
     stepBackward = new QPushButton(this);
+    stepBackward->setIcon(QIcon("icons/backward.png"));
 
     coordinatesWindow = new CoordinatesWindow;
     swapWindow = new SwapWindow;
@@ -97,7 +99,7 @@ ProgramWindow::ProgramWindow() : QWidget()
 
     QWidget *cameraTab = new QWidget(tabWidget);
     QGridLayout *cameraTabLayout = new QGridLayout(cameraTab);
-    cameraTabLayout->addWidget(resetButton,0,0,0,3);
+    cameraTabLayout->addWidget(resetButton,2,1);
     cameraTabLayout->addWidget(backSideCamera,1,1);
     cameraTabLayout->addWidget(leftSideCamera, 2, 0);
     cameraTabLayout->addWidget(rightSideCamera, 2, 2);
