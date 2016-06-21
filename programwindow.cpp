@@ -1,11 +1,8 @@
 #include "programwindow.h"
 
-/** Constructor to initialize and create the content of the window.
- * @brief ProgramWindow::ProgramWindow
- */
 static QString choice="choice1";
 
-ProgramWindow::ProgramWindow() : QWidget()
+ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
 {
     setMinimumSize(800, 800);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -71,7 +68,6 @@ ProgramWindow::ProgramWindow() : QWidget()
     formerStepsPoints = new QRadioButton("points", this);
     formerStepsLine->setChecked(true);
     furtherSteps = new QPushButton("display further steps", this);
-    //numberOfFurtherSteps = new QComboBox(this);
     numberOfSwapedSteps = new QComboBox(this);
 
     selectModeButton->setCheckable(true);
@@ -89,7 +85,7 @@ ProgramWindow::ProgramWindow() : QWidget()
     numberOfFormerSteps->setCurrentIndex(0);
     numberOfSwapedSteps->setCurrentIndex(0);
 
-    filewindow=new FileWindow;
+    filewindow= new FileWindow;
 
     /*
      * QTabWidget
@@ -117,7 +113,6 @@ ProgramWindow::ProgramWindow() : QWidget()
     QWidget *selectionTab = new QWidget(tabWidget);
     QVBoxLayout *selectionTabLayout = new QVBoxLayout(selectionTab);
     selectionTabLayout->addWidget(selectModeButton);
-    //selectionTabLayout->addWidget(coordinatesWindow);
     QScrollArea *scrollAreaSelection = new QScrollArea(selectionTab);
     scrollAreaSelection->setGeometry(500, 500, 600, 400);
     scrollAreaSelection->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
@@ -144,7 +139,6 @@ ProgramWindow::ProgramWindow() : QWidget()
     formerFurtherStepsTabLayout->addWidget(formerStepsLine, 0, 3);
     formerFurtherStepsTabLayout->addWidget(formerStepsPoints, 0, 4);
     formerFurtherStepsTabLayout->addWidget(furtherSteps, 1, 0);
-    //formerFurtherStepsTabLayout->addWidget(numberOfFurtherSteps, 1, 1);
     formerFurtherStepsTab->setLayout(formerFurtherStepsTabLayout);
 
     QWidget *swappingTab = new QWidget(tabWidget);
@@ -177,14 +171,10 @@ ProgramWindow::ProgramWindow() : QWidget()
     configureScreen();
 }
 
-ProgramWindow::ProgramWindow(QString fileName) : ProgramWindow() {
+ProgramWindow::ProgramWindow(QString& fileName, QWidget *parent) : ProgramWindow(parent) {
     setData(fileName);
     connectWidgets();
 }
-
-/** Method that initializes the screen.
- * @brief ProgramWindow::configureScreen
- */
 
 void ProgramWindow::configureScreen() {
     screen->setViewPort();
@@ -192,17 +182,17 @@ void ProgramWindow::configureScreen() {
     screen->setModelView();
 }
 
-void ProgramWindow::setData(QString fileName) {
+void ProgramWindow::setData(QString& fileName) {
     data.loadData(fileName);
     screen->setData(&data);
     swapWindow->setData(&data);
     coordinatesWindow->setData(&data);
+    filewindow->setData(&data);
     slider->setMaximum(data.getDataCoordinatesSize() - 1);
     for(int i = 0 ; i < data.getDataCoordinatesSize() ; i++) {
         numberOfFormerSteps->addItem(QString::number(i));
         numberOfSwapedSteps->addItem(QString::number(i));
     }
-    //connectWidgets();
 }
 
 void ProgramWindow::connectWidgets() {
@@ -224,7 +214,7 @@ void ProgramWindow::connectWidgets() {
     connect(displayLinksButton, SIGNAL(clicked(bool)), this, SLOT(enableDisplayLinks()));
     connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
     connect(saveSkeletonButton, SIGNAL(clicked(bool)), this, SLOT(saveSkeleton()));
-    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesSwapWindows(int, int)));
+    connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesWindow(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
     connect(formerSteps, SIGNAL(clicked(bool)), this, SLOT(enableDisplayFormerSteps()));
     connect(numberOfFormerSteps, SIGNAL(currentIndexChanged(int)), screen, SLOT(setNumberOfFormerStepsDisplayed(int)));
@@ -243,28 +233,11 @@ void ProgramWindow::connectWidgets() {
     connect(screen, SIGNAL(changeColorMarkerToBeSwapped(int,int)), swapWindow, SLOT(changeMarkerColorToBeSwapped(int,int)));
 }
 
-/** Method that changes the step of the view.
- * @brief ProgramWindow::changeStep
- * @param index
- */
-
 void ProgramWindow::changeStep(int index) {
     screen->setCurrentStep(index);
     label->setText("Step number : " + QString::number(index + 1));
     swapWindow->setCurrentStep(index);
     coordinatesWindow->setCurrentStep(index);
-    //updateWindowCoordinates();
-    /*if(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
-        while(numberOfSwapedSteps->count()>data.getDataCoordinatesSize()-slider->value()){
-           numberOfSwapedSteps->removeItem(numberOfSwapedSteps->count()-1);
-        }
-    }
-    else if(numberOfSwapedSteps->count()<data.getDataCoordinatesSize()-slider->value()){
-        while(numberOfSwapedSteps->count()<data.getDataCoordinatesSize()-slider->value()){
-            numberOfSwapedSteps->addItem(QString::number(numberOfSwapedSteps->count()));
-        }
-    }*/
-    //swapWindow->updateCoordinates();
 
     screen->update();
 }
@@ -279,15 +252,9 @@ void ProgramWindow::keyPressEvent(QKeyEvent *event) {
     }
 }
 
-void ProgramWindow::fillCoordinatesSwapWindows(int index, int color) {
+void ProgramWindow::fillCoordinatesWindow(int index, int color) {
     coordinatesWindow->addLineCoordinates(index, color);
-    //swapWindow->addSelectedMarker(index, color);
 }
-
-
-/** Method that manages the demo playing.
- * @brief ProgramWindow::demoPlaying
- */
 
 void ProgramWindow::demoPlaying() {
     slider->setValue(slider->value() + 1);
@@ -296,20 +263,12 @@ void ProgramWindow::demoPlaying() {
     }
 }
 
-/** Method that pauses the demo.
- * @brief ProgramWindow::pauseDemo
- */
-
 void ProgramWindow::pauseDemo() {
     emit stopTimer();
     delete timer;
     demoButton->setEnabled(true);
     pauseButton->setDisabled(true);
 }
-
-/** Method that starts the demo.
- * @brief ProgramWindow::startDemo
- */
 
 void ProgramWindow::startDemo() {
     demoButton->setDisabled(true);
@@ -321,10 +280,6 @@ void ProgramWindow::startDemo() {
     connect(this, SIGNAL(stopTimer()), timer, SLOT(stop()));
     connect(timer, SIGNAL(timeout()), this, SLOT(demoPlaying()));
 }
-
-/** Method that stops the demo.
- * @brief ProgramWindow::stopDemo
- */
 
 void ProgramWindow::stopDemo() {
     slider->setValue(0);
@@ -356,12 +311,16 @@ void ProgramWindow::displayFile(){
     qDebug() << "displayFile";
     const char* myChar = choice.toStdString().c_str();
     if(strcmp(myChar,"choice1")==0){
-      filewindow->setViewMrHolt();
+        delete filewindow;
+        filewindow=new FileWindow();
+        filewindow->setData(&data);
+        filewindow->setViewMrHolt();
         filewindow->show();
-        /*QWidget *w=new QWidget();
-        w->show();*/
     }
     else if(strcmp(myChar,"choice2")==0){
+        delete filewindow;
+        filewindow=new FileWindow();
+        filewindow->setData(&data);
         filewindow->setViewMrNilsen();
         filewindow->show();
 

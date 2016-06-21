@@ -35,7 +35,6 @@ MarkerCoordinatesWidget::MarkerCoordinatesWidget(int number, int color, QWidget 
 }
 
 MarkerCoordinatesWidget::~MarkerCoordinatesWidget() {
-    //risque de bug
     for(auto label : timeStepsLabels) {
         delete label;
     }
@@ -50,12 +49,6 @@ MarkerCoordinatesWidget::~MarkerCoordinatesWidget() {
         }
     }
     delete layout;
-}
-
-void MarkerCoordinatesWidget::eraseCoordinates(int step) {
-    coordinatesColumns[0][step]->setText("");
-    coordinatesColumns[1][step]->setText("");
-    coordinatesColumns[2][step]->setText("");
 }
 
 void MarkerCoordinatesWidget::setStepCoordinates(int step, const Marker& marker) {

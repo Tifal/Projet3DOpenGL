@@ -6,36 +6,28 @@ FileWindow::FileWindow(QWidget *parent) : QWidget(parent){
 }
 
 void FileWindow::setViewMrHolt(){
-    this->setWindowTitle("File window");
+    this->setWindowTitle("Rows = timesteps / Columns = markers");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
-            QFile fichier("files/comb_traj_20160219_121123.dat");
             QScrollArea *zoneDefilement = new QScrollArea;
             QLabel *label = new QLabel("test");
             setLayout(layout);
-    fichier.open(QIODevice::ReadOnly);
-
-    QString s;
-    QStringList liste;
     QStringList split;
     int countZero=0;
-    QTableWidget *table = new QTableWidget(300, 38);
+    QTableWidget *table = new QTableWidget(data->getDataCoordinatesSize(), data->get1Vector(0).size());
     table->setEditTriggers(QAbstractItemView::EditTriggers(0));
     table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    //label->setText(s);
     zoneDefilement->setWidget(table);
     layout->addWidget(table);
     layout->addWidget(label);
     QTableWidgetItem *item;
     int i = 0;
     int l=0;
-    while(!fichier.atEnd()) {
-        s = fichier.readLine(10000);
-        liste = s.split('\t');
+    while(i<data->getDataCoordinatesSize()) {
         l=0;
-        for(int j = 0 ; j < liste.size()-3 ; j+=3) {
-
-            item = new QTableWidgetItem(liste.value(j)+liste.value(j+1)+liste.value(j+2));
+        for(int j = 0 ; j < data->get1Vector(0).size() ; j++) {
+            item = new QTableWidgetItem(QString::number(data->get1Marker(i,j).getX())+" "+ QString::number(data->get1Marker(i,j).getY())
+                                        + " " + QString::number(data->get1Marker(i,j).getZ()));
             split=item->text().split(" ");
 
 
@@ -54,52 +46,42 @@ void FileWindow::setViewMrHolt(){
     }
     label->setText(""+ QString::number(countZero));
     table->resizeColumnsToContents();
-
-    fichier.close();
 }
 
 void FileWindow::setViewMrNilsen(){
-    this->setWindowTitle("File window");
+    this->setWindowTitle("Rows = markers / Columns = timesteps");
     delete this->layout();
     QVBoxLayout *layout = new QVBoxLayout;
-            QFile fichier("files/comb_traj_20160219_121123.dat");
             QScrollArea *zoneDefilement = new QScrollArea;
             QLabel *label = new QLabel("ligne vide");
             setLayout(layout);
-    fichier.open(QIODevice::ReadOnly);
-
-      QString s;
-      QStringList liste;
       int countZero=0;
-      QTableWidget *table = new QTableWidget(114,300);
+      QTableWidget *table = new QTableWidget(data->get1Vector(0).size()*3,data->getDataCoordinatesSize());
       table->setEditTriggers(QAbstractItemView::EditTriggers(0));
       table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
       zoneDefilement->setWidget(table);
       layout->addWidget(table);
       layout->addWidget(label);
 ;
-      QTableWidgetItem *item;
       int i = 0;
       QTableWidgetItem *itemx;
       QTableWidgetItem* itemy;
-      while(!fichier.atEnd()) {
-          s = fichier.readLine(10000);
-          liste = s.split('\t');
-          for(int j = 0 ; j < liste.size() ; j++) {
-              item = new QTableWidgetItem(liste.value(j));
+      QTableWidgetItem* itemz;
+      while(i<data->getDataCoordinatesSize()){
+          for(int j = 0 ; j < data->get1Vector(0).size() ; j++) {
 
-              table->setItem(j, i, item);
+                  itemx=new QTableWidgetItem(QString::number(data->get1Marker(i,j).getX()));
+                  itemy = new QTableWidgetItem(QString::number(data->get1Marker(i,j).getY()));
+                  itemz = new QTableWidgetItem(QString::number(data->get1Marker(i,j).getZ()));
+                  table->setItem((j*3), i, itemx);
+                  table->setItem((j*3)+1, i, itemy);
+                  table->setItem((j*3)+2, i, itemz);
 
-              if(j%3==0){
-                  itemx=item;
-              }
-              else if(j%3==1){
-                  itemy=item;
-              }
-              else if(item->text().toDouble()==0||itemx->text().toDouble()==0||itemy->text().toDouble()==0){
+              if(itemx->text().toDouble()==0&&itemy->text().toDouble()==0&&itemz->text().toDouble()==0){
+
                   itemx->setBackgroundColor(QColor(255,0,0));
                   itemy->setBackgroundColor(QColor(255,0,0));
-                  item->setBackgroundColor(QColor(255, 0, 0));
+                  itemz->setBackgroundColor(QColor(255, 0, 0));
                   countZero++;
               }
           }
@@ -107,5 +89,8 @@ void FileWindow::setViewMrNilsen(){
       }
       label->setText(""+ QString::number(countZero));
       table->resizeColumnsToContents();
-      fichier.close();
+}
+
+void FileWindow::setData(const Data *pointerToData) {
+    data = pointerToData;
 }

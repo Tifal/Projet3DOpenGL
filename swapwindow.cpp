@@ -3,12 +3,7 @@
 
 SwapWindow::SwapWindow(QWidget *parent) : QWidget(parent)
 {
-    /*QScrollArea *scrollArea = new QScrollArea(parent);
-    scrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    scrollArea->setWidgetResizable(true);*/
     setGeometry(500, 500, 100, 100);
-    //scrollArea->setGeometry(500, 500, 600, 400);
     setWindowTitle("swap window");
     layout = new QVBoxLayout(this);
     currentStep = 0;
@@ -19,9 +14,6 @@ SwapWindow::SwapWindow(QWidget *parent) : QWidget(parent)
     for(int i = 0 ; i < 2 ; i++) {
         markersToBeSwappedIndexes[i] = -1;
     }
-    //scrollArea->setWidget(this);
-    //scrollArea->setLayout(layout);
-    //scrollArea->show();
 }
 
 void SwapWindow::addSelectedMarker(int position, int index, int color) {
@@ -32,7 +24,6 @@ void SwapWindow::addSelectedMarker(int position, int index, int color) {
         markerCoordinatesRows.append(new MarkerCoordinatesWidget(markerCoordinatesRows.size(), Qt::white, this));
     }
     layout->addWidget(markerCoordinatesRows.last());
-    //selectedMarkersIndexes.append(index);
     markersToBeSwappedIndexes[position] = index;
     for(int i = 0 ; i <= numberOfFurtherStepsToUpdate ; i++) {
         markerCoordinatesRows.last()->addStepLabel();
@@ -44,11 +35,9 @@ void SwapWindow::addSelectedMarker(int position, int index, int color) {
 }
 
 void SwapWindow::removeSelectedMarker(int position) {
-    //attention, il peut y avoir un problème avec les index
     layout->removeWidget(markerCoordinatesRows.at(position));
     delete markerCoordinatesRows.at(position);
     markerCoordinatesRows.remove(position);
-    //selectedMarkersIndexes.remove(position);
     markersToBeSwappedIndexes[position] = -1;
     if(position == 0 && markersToBeSwappedIndexes[1] != -1) {
         markerCoordinatesRows.last()->setMarkerNumber(1);

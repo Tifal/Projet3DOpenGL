@@ -1,12 +1,6 @@
 #include "displaywindow.h"
 #include <iostream>
 
-
-/** Constructor to initialize the window.
- * @brief DisplayWindow::DisplayWindow
- * @param parent
- */
-
 DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
     data = NULL;
     currentStep = 0;
@@ -29,18 +23,9 @@ DisplayWindow::DisplayWindow(QWidget *parent) : QOpenGLWidget(parent) {
     }
 }
 
-
-/** Method that sets the viewport of the window.
- * @brief DisplayWindow::setViewPort
- */
-
 void DisplayWindow::setViewPort() {
     glViewport(0, 0, width(), height());
 }
-
-/** Method that sets the projection matrix.
- * @brief DisplayWindow::setProjection
- */
 
 void DisplayWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
@@ -50,10 +35,6 @@ void DisplayWindow::setProjection() {
     float * tab = projection.data();
     glMultMatrixf(tab);
 }
-
-/** Method that sets the model and view matrix.
- * @brief DisplayWindow::setModelView
- */
 
 void DisplayWindow::setModelView() {
     glMatrixMode(GL_MODELVIEW);
@@ -96,27 +77,13 @@ void DisplayWindow::removePickedIndex(int index) {
     update();
 }
 
-/** Method to initialize and use OpenGL.
- * @brief DisplayWindow::initializeGL
- */
-
 void DisplayWindow::initializeGL()
 {
     initializeOpenGLFunctions();//THIS MUST BE CALLED TO INIT OPENGL
     qDebug() << "initializeGL()";
 }
 
-/** Method called when the window is resized.
- * @brief DisplayWindow::resizeGL
- * @param w
- * @param h
- */
-
 void DisplayWindow::resizeGL(int w, int h){}
-
-/** Method that is called when the window is painted.
- * @brief DisplayWindow::paintGL
- */
 
 void DisplayWindow::paintGL()
 {
@@ -306,11 +273,6 @@ const Marker& DisplayWindow::getMarkerWithCross() const {
     return data->get1Marker(currentStep,linkedMarkersIndexes.last()[0]);
 }
 
-/** Method that implements the mouse pressed event.
- * @brief DisplayWindow::mousePressEvent
- * @param event
- */
-
 void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     mouseXStartPosition = event->x();
     mouseYStartPosition = event->y();
@@ -327,11 +289,6 @@ void DisplayWindow::mousePressEvent(QMouseEvent *event) {
         removePickedLink();
     }
 }
-
-/** Method that implements the mouse moved event.
- * @brief DisplayWindow::mouseMoveEvent
- * @param event
- */
 
 void DisplayWindow::mouseMoveEvent(QMouseEvent *event) {
     moveCamera(event);
@@ -467,7 +424,6 @@ void DisplayWindow::swapMarkers() {
     if(markersToBeSwapedIndexes.at(0) == -1){
         markersToBeSwapedIndexes.at(0)=index;
         if(index != -1) {
-            //emit markerToBeSwappedPicked(0, index, selectedMarkerIndexes.indexOf(index));
             emit markerToBeSwappedPicked(0, index, color);
         }
     }
@@ -506,11 +462,6 @@ void DisplayWindow::swapMarkers() {
     update();
 }
 
-/** Method that implements the move of the camera.
- * @brief DisplayWindow::moveCamera
- * @param event
- */
-
 void DisplayWindow::moveCamera(QMouseEvent *event) {
     makeCurrent();
     glMatrixMode(GL_MODELVIEW);
@@ -526,10 +477,6 @@ void DisplayWindow::moveCamera(QMouseEvent *event) {
     mouseYStartPosition = event->y();
     update();
 }
-
-/** Method that implements the reset of the camera.
- * @brief DisplayWindow::resetCamera
- */
 
 void DisplayWindow::resetCamera() {
     makeCurrent();

@@ -9,8 +9,5 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QString s("files/comb_traj_20160219_121123.dat");
     ProgramWindow window(s);
-
-    //window.configureScreen();
-
     return a.exec();
 }

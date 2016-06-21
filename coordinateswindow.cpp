@@ -124,14 +124,3 @@ void CoordinatesWindow::swapCoordinates(const std::array<int, 2>& markersToBeSwa
 
 }
 
-/*void CoordinatesWindow::updateColors(int index) {
-    QPalette palette;
-    colorIndex = 7 + index;
-    std::cout << index << std::endl;
-    for(int i = index ; i < xyzVector.size() ; i++) {
-        palette.setColor(QPalette::Base, QColor(Qt::GlobalColor(colorIndex)));
-        xyzVector.at(i).at(3)->setPalette(palette);
-        colorIndex++;
-    }
-}*/
-

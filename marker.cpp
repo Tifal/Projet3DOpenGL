@@ -9,6 +9,8 @@ Marker::Marker(int id, float x, float y, float z)
     markerCoordinates[1] = y;
     markerCoordinates[2] = z;
 
+    //see the pickMarker method of DisplayWindow to understand why one is added to id.
+    id++;
     // the color identifier is used to pick the marker
     redId = (id & 0x000000FF);
     greenId = (id & 0x0000FF00) >>  8;
