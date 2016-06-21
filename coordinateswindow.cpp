@@ -6,10 +6,6 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     layout = new QGridLayout(this);
     setWindowTitle("marker coordinates window");
     currentStep = 0;
-    //QLabel *subtitleDistance = new QLabel("distance between markers", this);
-    //subtitleDistance->setMinimumHeight(50);
-    //distanceMarker1 = new QComboBox(this);
-    //distanceMarker2 = new QComboBox(this);
 
     QLabel *subTitleCoordinates = new QLabel("marker coordinates", this);
     subTitleCoordinates->setMinimumHeight(20);
@@ -18,9 +14,6 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     QLabel *headerY = new QLabel("y", this);
     QLabel *headerZ = new QLabel("z", this);
 
-    //layout->addWidget(subtitleDistance, 0, 0, 1, 6, Qt::AlignCenter);
-    //layout->addWidget(distanceMarker1, 1, 0, 1, 3);
-    //layout->addWidget(distanceMarker2, 1, 3, 1, 3);
     layout->addWidget(subTitleCoordinates, 2, 0, 1, 6, Qt::AlignCenter);
     layout->addWidget(headerColor, 3, 1, Qt::AlignCenter);
     layout->addWidget(headerX, 3, 2, Qt::AlignCenter);
@@ -31,11 +24,6 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     this->setLayout(layout);
 }
 
-/*void CoordinatesWindow::setDistance(const Marker& marker1, const Marker& marker2) {
-    float result = pow((marker2.getX() - marker1.getX()), 2) + pow((marker2.getY() - marker1.getY()), 2) + pow((marker2.getZ() - marker1.getZ()), 2);
-    result = sqrt(result);
-    distance->setText(QString::number(result));
-}*/
 
 void CoordinatesWindow::addLineCoordinates(int index, int color) {
     selectedMarkersIndexes.append(index);
@@ -56,7 +44,6 @@ void CoordinatesWindow::addLineCoordinates(int index, int color) {
     xyzVector.last().at(1)->setText(QString::number(data->get1Marker(currentStep, index).getX()));
     xyzVector.last().at(2)->setText(QString::number(data->get1Marker(currentStep, index).getY()));
     xyzVector.last().at(3)->setText(QString::number(data->get1Marker(currentStep, index).getZ()));
-    //colorIndex++;
     buttonVector.append(new QPushButton("remove", this));
     connect(buttonVector.last(), SIGNAL(clicked(bool)), this, SLOT(removeLineCoordinates()));
     layout->addWidget(buttonVector.last(), row, 5);
@@ -102,7 +89,6 @@ void CoordinatesWindow::removeLineCoordinates() {
     layout->removeWidget(buttonVector.at(i));
     delete buttonVector.at(i);
     buttonVector.remove(i);
-    //updateColors(i);
 }
 
 void CoordinatesWindow::updateLabelNumber(int index) {
