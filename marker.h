@@ -10,6 +10,13 @@
  */
 class Marker
 {
+
+private:
+    float markerCoordinates[3];
+    int redId;
+    int greenId;
+    int blueId;
+
 public:
 
     /**
@@ -83,12 +90,6 @@ public:
      * @return the blue component of the color identifier of this Marker.
      */
     int getBlueId() const;
-
-private:
-    float markerCoordinates[3];
-    int redId;
-    int greenId;
-    int blueId;
 };
 
 #endif // MARKER_H

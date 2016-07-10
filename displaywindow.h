@@ -17,7 +17,7 @@
  * It holds three different types of attributes :
  * <ul>
  *      <li> attributes setting the way the data are displayed (displayFormerSteps, displayLinks...).</li>
- *      <li> attributes defining which picking mode is in use.</li>
+ *      <li> attributes defining which picking mode is currently used.</li>
  *      <li> QVectors or arrays storing the indexes of the markers picked for each specific picking mode </li>
  * </ul>
  */
@@ -37,26 +37,31 @@ private:
     QVector<std::array<int, 2>> linkedMarkersIndexes;
     // QVector that stores the indexes of the markers that have been picked in swap mode
     std::array<int, 2> markersToBeSwapedIndexes;
+    // Stores the current value of the slider (current time step)
     int currentStep;
     // the x position of the mouse on the screen
     int mouseXStartPosition;
     // the y position of the mouse on the screen
     int mouseYStartPosition;
+    // sets the number of previous steps to be displayed
     int numberOfFormerStepsDisplayed;
+    // sets the number of further steps to be displayed
     int numberOfFurtherStepsDisplayed;
     // a boolean that indicates whether the previous steps must be painted on the screen or not
     bool displayFormerSteps;
+    // a boolean that indicates whether the previous steps should be displayed for selected markers only.
     bool formerStepsSelectedMarkers;
     // a boolean that shows whether the future steps must be painted on the screen or not
     bool displayFurtherSteps;
-    // a boolean that indicates if the current mode is link mode to know how to process the marker picked
+    // a boolean that indicates if the current picking mode is link mode to know how to process the marker picked
     bool linkMarkerMode;
     // a boolean that indicates whether skeleton of links must be painted on the screen or not
     bool displayLinks;
-    // a boolean that shows if the current mode is select mode to know how to process the marker picked
+    // a boolean that shows if the current picking mode is select mode to know how to process the marker picked
     bool selectMarkerMode;
-    // a boolean that indicates if the current mode is swap mode to know how to process the marker picked
+    // a boolean that indicates if the current picking mode is swap mode to know how to process the marker picked
     bool swapMode;
+    // a boolean that sets if the current picking mode is erase one link
     bool eraseOneLinkMode;
     // a boolean that is used to know if the white cross should be painted on the screen
     bool lineBeingDrawn;
@@ -87,7 +92,7 @@ public:
 
     /**
      * @brief setModelView
-     * Sets the modelView matrix (sets the position the model in the scene)
+     * Sets the modelView matrix (sets the position of the model in the scene)
      */
     void setModelView();
 
@@ -132,7 +137,7 @@ public:
      * @brief selectMarker
      * Appends the index of the marker picked at the end of the selectedMarkerIndexes QVector. this method is called when the selection mode is enabled.
      * the number of marker selected must be below 12. A signal is sent to add the marker to the CoordinatesWindow. Another signal is sent to paint the
-     * color the marker in the SwapWindow.
+     * color of the marker in the SwapWindow.
      */
     void selectMarker();
 
@@ -162,10 +167,19 @@ public:
      * Adds the index of the marker picked in the markersToBeSwapedIndexes array. each integer is initialized to -1
      * if two markers are already contained in the array when a marker is
      * picked, then the index at index 1 is removed. if an already picked marker is picked again then it is removed from the array.
-     * Clicking on the background sets the last element to -1 and the first element to -1 if the last element is already equals to -1.
-     * once a marker is added or removed, a signal is sent to the SwapWindow to add or remove a MarkerCoordinatesWidget.
+     * Clicking on the background sets the last element to -1 and the first element to -1 if the last element is already equal to -1.
+     * Once a marker is added or removed, a signal is sent to the SwapWindow to add or remove a MarkerCoordinatesWidget.
      */
     void swapMarkers();
+
+    /**
+     * @brief setLinkedMarkersVector
+     * Sets the linkedMarkersIndexes attribute to the given QVector
+     * @param linkedMarkers
+     *          the QVector to set linkedMarkersIndexes to
+     */
+
+    void setLinkedMarkersVector(QVector<std::array<int, 2>> linkedMarkers);
 
     /**
      * @brief setLinkMarkerMode
@@ -193,7 +207,7 @@ public:
 
     /**
      * @brief setDisplayLinks
-     * Sets the displayLinks to the given boolean
+     * Sets the displayLinks attribute to the given boolean
      * @param boolean
      *          the state to set displayLinks to.
      */
@@ -241,7 +255,7 @@ public:
 
     /**
      * @brief getMarkerWithCross
-     * Returns a const-cast reference to the first marker that has been picked using the link mode.
+     * Returns a const-cast reference to the first marker that has been picked using link mode.
      * @return a const-cast reference to the marker that has been picked with link mode.
      */
     const Marker& getMarkerWithCross() const;
@@ -262,7 +276,6 @@ public:
      * @return a boolean stating whether the array is already in the linkedMarkersIndexes member variable.
      */
     bool alreadyLinkedMarkers(std::array<int, 2>& linkedMarkers);
-    //void setCoordinates(const QVector<Marker>& newCoordinates);
 
 public slots:
 
@@ -359,7 +372,7 @@ signals:
      * <ul>
      *      <li> it is already in markersToBeSwapedIndexes </li>
      *      <li> it is at position 1 and another marker is picked </li>
-     *      <li> it the last element picked is the background of the scene </li>
+     *      <li> the last element picked is the background of the scene </li>
      * </ul>
      * The signal indicates to SwapWindow the position of the MarkerCoordinatesWidget to remove.
      * @param position
@@ -370,12 +383,12 @@ signals:
     /**
      * @brief changeColorMarkerToBeSwapped
      * Signal emitted when a marker whose index is contained in markersToBeSwapedIndexes is selected in selection mode.
-     * This signal is sent to SwapWindow to change the color of the marker to the color if a marker is selected or to white if it is removed
+     * This signal is sent to SwapWindow to paint the color of the marker if a marker is selected or turn it to white if it is removed
      * from selectedMarkerIndexes.
      * @param position
      *          the index of the marker in the markersToBeSwapedIndexes array.
      * @param color
-     *          the color to set the marker to in the SwapWindow
+     *          the color to set the marker to in the SwapWindow.
      */
     void changeColorMarkerToBeSwapped(int position, int color);
 
@@ -468,7 +481,7 @@ protected:
 
     /**
      * @brief mousePressEvent
-     * Method called when one of the buttons of the mouth is pressed.
+     * Method called when one of the buttons of the mouse is pressed.
      * Enables the camera to be moved.
      * Depending on the current picking mode, calls swapMarkers(), selectMarker(), linkMarkerLine() or removePickedLink().
      * @param event
@@ -478,7 +491,7 @@ protected:
 
     /**
      * @brief mouseMoveEvent
-     * Method called when the mouse is moved. As tracking is disabled, this method is called only when one of the buttons of the mouth is clicked.
+     * Method called when the mouse is moved. As tracking is disabled, this method is called only when one of the buttons of the mouse is clicked.
      * Calls the moveCamera method.
      * @param event
      *          the event corresponding to the mouse last motion.
@@ -487,7 +500,7 @@ protected:
 
     /**
      * @brief moveCamera
-     * Moves the camera according to the motion of the mouth.
+     * Moves the camera according to the motion of the mouse.
      * @param event
      *          the QMouseEvent sent by the mouseMoveEvent method.
      */

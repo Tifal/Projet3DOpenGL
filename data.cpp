@@ -12,14 +12,15 @@ void Data::displayData() const {
 }
 
 void Data::loadData(QString& fileName) {
+    this->fileName = fileName.left(fileName.indexOf("."));
     dataCoordinates =   QVector<QVector<Marker>>();
-    QFile fichier(fileName);
-    fichier.open(QIODevice::ReadOnly);
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly);
     QString s;
     QStringList liste;
-    while(!fichier.atEnd()) {
+    while(!file.atEnd()) {
         dataCoordinates.append(QVector<Marker>());
-        s = fichier.readLine(10000);
+        s = file.readLine(10000);
         liste = s.split('\t');
         for(int i = 0 ; i < liste.size() - 1; i += 3) {
          // please refer to the comment in the pickMarker method of DisplayWindow to understand why 1 is added to the identifier of the
@@ -27,7 +28,7 @@ void Data::loadData(QString& fileName) {
            dataCoordinates.last().append(Marker(i / 3 + 1, liste.at(i).toFloat(), liste.at(i + 1).toFloat(), liste.at(i + 2).toFloat()));
         }
     }
-    fichier.close();
+    file.close();
 }
 
 void Data::saveData(QString& fileName) {
@@ -44,7 +45,7 @@ void Data::saveData(QString& fileName) {
 
 void Data::saveData() {
     QString fileName = QFileDialog::getSaveFileName();
-    QFile file(fileName);
+    QFile file(fileName + ".dat");
     file.open(QIODevice::WriteOnly);
     QTextStream out(&file);
     for(auto line : dataCoordinates) {
@@ -56,14 +57,42 @@ void Data::saveData() {
 }
 
 void Data::saveDataSkeleton(const QVector<std::array<int, 2>>& linkedMarkersIndexes) {
-    QString fileName = QFileDialog::getSaveFileName();
-    QFile file(fileName);
-    file.open(QIODevice::WriteOnly);
-    QTextStream out(&file);
-    for(int i = 0 ; i < linkedMarkersIndexes.size() ; i++) {
-        out << linkedMarkersIndexes.at(i).at(0) << "\t" << linkedMarkersIndexes.at(i).at(1) << "\t";
-        out << "\n";
+    QMessageBox saveBox;
+    saveBox.setText("The previous skeleton will be erased.");
+    saveBox.setInformativeText("Do you want to save the current skeleton ?");
+    saveBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+    int buttonClicked = saveBox.exec();
+    if(buttonClicked == QMessageBox::Save) {
+        QFile file(fileName + "_skeleton.dat");
+        file.open(QIODevice::WriteOnly);
+        QTextStream out(&file);
+        for(int i = 0 ; i < linkedMarkersIndexes.size() ; i++) {
+            out << linkedMarkersIndexes.at(i).at(0) << "\t" << linkedMarkersIndexes.at(i).at(1) << "\t";
+            out << "\n";
+        }
     }
+}
+
+QVector<std::array<int, 2>> Data::loadSkeleton() {
+    QFile file(fileName + "_skeleton.dat");
+    QVector<std::array<int, 2>> linkedMarkers;
+    if(file.exists()) {
+        file.open(QIODevice::ReadOnly);
+        QString s;
+        QStringList list;
+        while(!file.atEnd()) {
+            linkedMarkers.append(std::array<int, 2>());
+            s = file.readLine(10000);
+            list = s.split('\t');
+            for(int i = 0 ; i < list.size() ; i++) {
+                linkedMarkers.last()[i] = list[i].toInt();
+            }
+        }
+        file.close();
+        return linkedMarkers;
+    }
+    linkedMarkers.append(std::array<int, 2>({-1 , -1}));
+    return linkedMarkers;
 }
 
 const QVector<QVector<Marker>>* Data::getDataCoordinates() const {

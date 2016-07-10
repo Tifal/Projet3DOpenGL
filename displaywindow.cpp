@@ -285,7 +285,7 @@ void DisplayWindow::mousePressEvent(QMouseEvent *event) {
     else if(swapMode) {
         swapMarkers();
     }
-    else if(eraseOneLinkMode) {
+    else if(eraseOneLinkMode && displayLinks) {
         removePickedLink();
     }
 }
@@ -334,7 +334,7 @@ void DisplayWindow::selectMarker() {
 
 void DisplayWindow::linkMarkerLine() {
     int index = pickMarker();
-    // if the index is equal to -1 (the black background) or to first index picked
+    // if the index is equal to -1 (the black background) or to the first index picked
     // then the array is reset
     if(index == -1 || index == linkedMarkersIndexes.last()[0]) {
         linkedMarkersIndexes.last()[0] = -1;
@@ -356,7 +356,7 @@ void DisplayWindow::linkMarkerLine() {
             lineBeingDrawn = false;
         }
         // if it is the first index/marker picked
-        // lineBeingDrawn is set to true to paint a white cross on the screen to show that a marker have been picked
+        // lineBeingDrawn is set to true to paint a white cross on the screen to show that a marker has been picked
         else {
             linkedMarkersIndexes.last()[0] = index;
             lineBeingDrawn = true;
@@ -578,4 +578,8 @@ void DisplayWindow::setEraseOneLinkMode(bool boolean) {
 
 void DisplayWindow::setSwapMode(bool boolean) {
     swapMode = boolean;
+}
+
+void DisplayWindow::setLinkedMarkersVector(QVector<std::array<int, 2>> linkedMarkers) {
+    linkedMarkersIndexes = linkedMarkers;
 }

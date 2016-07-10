@@ -6,6 +6,7 @@
 #include <iostream>
 #include <QTextStream>
 #include <QFileDialog>
+#include <QMessageBox>
 #include "marker.h"
 
 /**
@@ -18,8 +19,9 @@ class Data
 
 private:
     // QVector that stores coordinates of the markers for each time step
-    // 2 dimensionnal QVector where the rows corresponds to the time steps and the columns corresponds to the markers
+    // 2 dimensionnal QVector where the rows correspond to the time steps and the columns correspond to the markers
     QVector<QVector<Marker>> dataCoordinates;
+    QString fileName;
 
 public:
 
@@ -53,19 +55,26 @@ public:
 
     /**
      * @brief saveData
-     * Shows a QFileDialog and saves the data in a file whose name is composed of the path to the selected directory and the name entered
+     * Shows a QFileDialog and saves the data in a file whose name is composed of the path to the selected directory and the name entered.
      */
     void saveData();
 
     /**
      * @brief saveDataSkeleton
-     * Shows a QFileDialog and saves QVector passed as parameter in a file whose name is composed of the path to the selected directory and the name
-     * entered.
+     * Saves QVector passed as parameter in a file.
      * @param linkedMarkersIndexes
      *              A QVector from DisplayWindow which contains arrays of two integers corresponding to the indexes of the markers which are linked by
      *              a line.
      */
     void saveDataSkeleton(const QVector<std::array<int, 2>>& linkedMarkersIndexes);
+
+    /**
+     * @brief loadSkeleton
+     * Returns the skeleton that has been previously saved. This function is called when the program is started.
+     * @return a QVector containing arrays of two indexes of the markers to be linked.
+     */
+
+    QVector<std::array<int, 2>> loadSkeleton();
 
     /**
      * @brief getDataCoordinates
@@ -76,7 +85,7 @@ public:
 
     /**
      * @brief get1Vector
-     * Returns a constant-cast reference to a single QVector of dataCoordinates corresponding to the state of the markers for the given step.
+     * Returns a constant-cast reference to a single QVector of dataCoordinates for the given step.
      * @param index
      *          An index corresponding to the step to return.
      * @return a constant-cast reference to a QVector of Markers
@@ -100,6 +109,15 @@ public:
      * @return the size of dataCoordinates attribute.
      */
     int getDataCoordinatesSize() const;
+
+    /**
+     * @brief swapMarkersData
+     * Swaps the markers that are stored in the given array at the given step.
+     * @param markersIndexes
+     *          the markers that must be swapped.
+     * @param step
+     *          the step at which the markers must be swapped.
+     */
     void swapMarkersData(const std::array<int, 2>& markersIndexes, int step);
 };
 

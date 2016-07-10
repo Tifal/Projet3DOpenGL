@@ -24,7 +24,6 @@ CoordinatesWindow::CoordinatesWindow(QWidget *parent) : QWidget(parent)
     this->setLayout(layout);
 }
 
-
 void CoordinatesWindow::addLineCoordinates(int index, int color) {
     selectedMarkersIndexes.append(index);
     int row = layout->rowCount();
@@ -44,6 +43,7 @@ void CoordinatesWindow::addLineCoordinates(int index, int color) {
     xyzVector.last().at(1)->setText(QString::number(data->get1Marker(currentStep, index).getX()));
     xyzVector.last().at(2)->setText(QString::number(data->get1Marker(currentStep, index).getY()));
     xyzVector.last().at(3)->setText(QString::number(data->get1Marker(currentStep, index).getZ()));
+    //colorIndex++;
     buttonVector.append(new QPushButton("remove", this));
     connect(buttonVector.last(), SIGNAL(clicked(bool)), this, SLOT(removeLineCoordinates()));
     layout->addWidget(buttonVector.last(), row, 5);

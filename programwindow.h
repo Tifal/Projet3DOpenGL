@@ -28,6 +28,47 @@ class ProgramWindow : public QWidget
 {
     Q_OBJECT
 
+private:
+    QSlider *slider;
+    DisplayWindow *screen;
+    CoordinatesWindow *coordinatesWindow;
+    FileWindow *filewindow;
+    SwapWindow *swapWindow;
+    Data data;
+    QLabel *label;
+    QLabel *swapLabel;
+    QPushButton *demoButton;
+    QPushButton *pauseButton;
+    QPushButton *stopButton;
+    QPushButton *stepForward;
+    QPushButton *stepBackward;
+    QPushButton *frontSideCamera;
+    QPushButton *backSideCamera;
+    QPushButton *leftSideCamera;
+    QPushButton *rightSideCamera;
+    QPushButton *saveDataButton;
+    QPushButton *displayFileCoordinates;
+    QPushButton *selectModeButton;
+    QPushButton *linkModeButton;
+    QPushButton *eraseLinks;
+    QPushButton *eraseOneLinkButton;
+    QPushButton *saveSkeletonButton;
+    QPushButton *resetButton;
+    QCheckBox *displayLinksButton;
+    QCheckBox *displayFormerStepsSelectedMarkers;
+    QPushButton *formerSteps;
+    QPushButton *furtherSteps;
+    QPushButton *swapModeButton;
+    QPushButton *swapMarkersButton;
+    QRadioButton *displayChoice1;
+    QRadioButton *displayChoice2;
+    QRadioButton *formerStepsLine;
+    QRadioButton *formerStepsPoints;
+    QComboBox *numberOfFormerSteps;
+    QComboBox *numberOfFurtherSteps;
+    QComboBox *numberOfSwapedSteps;
+    QTimer *timer;
+
 public:
 
     /**
@@ -47,7 +88,7 @@ public:
 
     /**
      * @brief configureScreen
-     * Configures the screen DisplayWindow attribute. Calls the DisplayWindow methods setViewPort, setProjection and setModelView.
+     * Configures the DisplayWindow attribute. Calls the DisplayWindow methods setViewPort, setProjection and setModelView.
      */
     void configureScreen();
 
@@ -108,7 +149,7 @@ public slots:
 
     /**
      * @brief startDemo
-     * Methods that starts a QTimer which emits a signal at a fix rate that calls demoPlaying().
+     * Methods that starts a QTimer which emits a signal at a fixed rate that calls demoPlaying().
      * Enables the use of the pause button and the stop button.
      */
     void startDemo();
@@ -130,7 +171,8 @@ public slots:
     /**
      * @brief pickMode
      * Assesses which picking mode button has been clicked (selectModeButton, linkModeButton, swapModeButton, eraseOneLinkButton) then sets the attribute
-     * corresponding to that mode to true in the DisplayWindow and sets the attributes corresponding to the other modes to false.
+     * corresponding to that mode in the DisplayWindow to true and sets the attributes corresponding to the other modes to false if the button is checked.
+     * Sets the attribute corresponding to that mode in the DisplayWindow to false otherwise.
      */
     void pickMode();
 
@@ -171,6 +213,13 @@ public slots:
     void saveSkeleton();
 
     /**
+     * @brief saveData
+     * Saves the current state of the data attribute in a file.
+     */
+
+    void saveData();
+
+    /**
      * @brief swapMarkers
      * Calls the swapMarkersData Data method. Uses the markersToBeSwappedIndexes DisplayWindow attribute to get the markers to be swapped and uses the numberOfStepsToUpdate
      * SwapWindow attribute to swap the correct amount of steps. After swapping, the CoordinatesWindow and the SwapWindow objects are updated.
@@ -184,46 +233,6 @@ signals:
      * Signal emitted to stop the timer from firing its signal
      */
     void stopTimer();
-
-private:
-    QSlider *slider;
-    DisplayWindow *screen;
-    CoordinatesWindow *coordinatesWindow;
-    FileWindow *filewindow;
-    SwapWindow *swapWindow;
-    Data data;
-    QLabel *label;
-    QLabel *swapLabel;
-    QPushButton *demoButton;
-    QPushButton *pauseButton;
-    QPushButton *stopButton;
-    QPushButton *stepForward;
-    QPushButton *stepBackward;
-    QPushButton *frontSideCamera;
-    QPushButton *backSideCamera;
-    QPushButton *leftSideCamera;
-    QPushButton *rightSideCamera;
-    QPushButton *displayFileCoordinates;
-    QPushButton *selectModeButton;
-    QPushButton *linkModeButton;
-    QPushButton *eraseLinks;
-    QPushButton *eraseOneLinkButton;
-    QPushButton *saveSkeletonButton;
-    QPushButton *resetButton;
-    QCheckBox *displayLinksButton;
-    QCheckBox *displayFormerStepsSelectedMarkers;
-    QPushButton *formerSteps;
-    QPushButton *furtherSteps;
-    QPushButton *swapModeButton;
-    QPushButton *swapMarkersButton;
-    QRadioButton *displayChoice1;
-    QRadioButton *displayChoice2;
-    QRadioButton *formerStepsLine;
-    QRadioButton *formerStepsPoints;
-    QComboBox *numberOfFormerSteps;
-    QComboBox *numberOfFurtherSteps;
-    QComboBox *numberOfSwapedSteps;
-    QTimer *timer;
 };
 
 #endif // PROGRAMWINDOW_H

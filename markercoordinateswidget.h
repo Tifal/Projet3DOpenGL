@@ -16,6 +16,18 @@
 
 class MarkerCoordinatesWidget : public QFrame
 {
+
+private:
+    QLabel * markerNumber;
+    QLabel * x;
+    QLabel * y;
+    QLabel * z;
+    QLabel *timeStep;
+    QLineEdit * markerColor;
+    std::array<QVector<QLineEdit *>, 3> coordinatesColumns;
+    QVector<QLabel *> timeStepsLabels;
+    QGridLayout *layout;
+
 public:
 
     /**
@@ -101,17 +113,6 @@ public:
      *          the number which the label must be set to.
      */
     void updateStepLabel(int index, int stepNumber);
-
-private:
-    QLabel * markerNumber;
-    QLabel * x;
-    QLabel * y;
-    QLabel * z;
-    QLabel *timeStep;
-    QLineEdit * markerColor;
-    std::array<QVector<QLineEdit *>, 3> coordinatesColumns;
-    QVector<QLabel *> timeStepsLabels;
-    QGridLayout *layout;
 };
 
 #endif // MARKERCOORDINATESWIDGET_H

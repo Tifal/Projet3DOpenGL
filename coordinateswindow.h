@@ -16,13 +16,26 @@
  * @brief The CoordinatesWindow class
  *
  * The CoordinatesWindow class is used to display the markers picked in " selection " mode. This class contains a two-dimensional QVector of
- * QLineEdit which are used to display the x, y and z coordinates of the markers as well as their color. It also contains a QVector of QPushButton
+ * QLineEdit which are used to display the x, y and z coordinates of the markers as well as their color. It also contains a QVector of QPushButtons
  * which enable the user to remove the various markers.
  */
 
 class CoordinatesWindow : public QWidget
 {
     Q_OBJECT
+
+private:
+    int currentStep;
+    QVector<int> selectedMarkersIndexes;
+    const Data * data;
+    QGridLayout *layout;
+    // QVector that stores "remove" buttons
+    QVector<QPushButton*> buttonVector;
+    // QVector that stores the label showing the number of the marker in the list of selected markers
+    QVector<QLabel*> labelVector;
+    // QVector that stores the QLineEdit that are used to display the coordinates of the markers
+    QVector<QVector<QLineEdit*>> xyzVector;
+
 public:
 
     /**
@@ -34,7 +47,6 @@ public:
      *              the parent widget which contains this instance of CoordinatesWindow
      */
     CoordinatesWindow(QWidget *parent = Q_NULLPTR);
-    void setDistance(const Marker& marker1, const Marker& marker2);
 
     /**
      * @brief setData
@@ -49,7 +61,7 @@ public:
     /**
      * @brief setCurrentStep
      *
-     * Sets the currenStep member variable to the step paramater
+     * Sets the currenStep member variable to the given paramater.
      *
      * @param step
      *              the current value of the slider contained in the ProgramWindow class.
@@ -91,13 +103,12 @@ public:
      *              the indexes of the two markers which have been swapped.
      */
     void swapCoordinates(const std::array<int, 2>& markersToBeSwaped);
-    //void updateColors(int index);
 
 public slots:
 
     /**
      * @brief removeLineCoordinates
-     * Method which assesses which remove button has been pressed, and delete every widget that are positionned on the line of the button.
+     * Method which assesses which remove button has been pressed, and deletes every widget that are positionned on the line of the button.
      * the signal lineRemoved() is also emitted in that function
      * @see lineRemoved();
      */
@@ -113,21 +124,6 @@ signals:
      *              the index at which is the index to be removed.
      */
     void lineRemoved(int index);
-
-private:
-    int currentStep;
-    QVector<int> selectedMarkersIndexes;
-    const Data * data;
-    QGridLayout *layout;
-    // QVector that stores "remove" buttons
-    QVector<QPushButton*> buttonVector;
-    // QVector that stores the label showing the number of the marker in the list of selected markers
-    QVector<QLabel*> labelVector;
-    // QVector that stores the QLineEdit that are used to display the coordinates of the markers
-    QVector<QVector<QLineEdit*>> xyzVector;
-    QComboBox *distanceMarker1;
-    QComboBox *distanceMarker2;
-    //int colorIndex;
 };
 
 #endif // COORDINATESWINDOW_H

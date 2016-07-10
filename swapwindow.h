@@ -17,6 +17,16 @@ class SwapWindow : public QWidget
 {
 
     Q_OBJECT
+
+private:
+    QVector<MarkerCoordinatesWidget*> markerCoordinatesRows;
+    QVBoxLayout *layout;
+    const Data *data;
+    std::array<int, 2> markersToBeSwappedIndexes;
+    int currentStep;
+    int numberOfFurtherSteps;
+    int numberOfFurtherStepsToUpdate;
+
 public:
 
     /**
@@ -95,20 +105,11 @@ public slots:
      * Method called if one of the marker displayed in the SwapWindow is picked in select mode or if it is deselected.
      * When the marker is selected, changes its color to the given color, otherwise it is turned to white.
      * @param position
-     *          the position of the marker to remove.
+     *          the position of the marker.
      * @param color
-     *          the color to set the marker to. Is equal to -1 it the marker is deselected.
+     *          the color to set the marker to. Is equal to -1 if the marker is deselected.
      */
     void changeMarkerColorToBeSwapped(int position, int color);
-
-private:
-    QVector<MarkerCoordinatesWidget*> markerCoordinatesRows;
-    QVBoxLayout *layout;
-    const Data *data;
-    std::array<int, 2> markersToBeSwappedIndexes;
-    int currentStep;
-    int numberOfFurtherSteps;
-    int numberOfFurtherStepsToUpdate;
 };
 
 #endif // SWAPWINDOW_H

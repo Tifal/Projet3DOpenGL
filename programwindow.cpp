@@ -4,9 +4,9 @@ static QString choice="choice1";
 
 ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
 {
-    setMinimumSize(800, 800);
+    setGeometry(50, 50, 800, 800);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setWindowTitle("Test");
+    setWindowTitle("3D Swapping Corrector");
 
     slider = new QSlider(Qt::Orientation::Horizontal, this);
     screen = new DisplayWindow(this);
@@ -26,9 +26,11 @@ ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
     pauseButton->setDisabled(true);
     stopButton->setDisabled(true);
     stepForward = new QPushButton(this);
-    stepForward->setIcon(QIcon("icons/forward.png"));
+    stepForward->setAutoRepeat(true);
+    stepForward->setIcon(QIcon("icons/Gtk-media-forward-ltr.svg"));
     stepBackward = new QPushButton(this);
-    stepBackward->setIcon(QIcon("icons/backward.png"));
+    stepBackward->setAutoRepeat(true);
+    stepBackward->setIcon(QIcon("icons/Gtk-media-rewind-ltr.svg"));
 
     coordinatesWindow = new CoordinatesWindow;
     swapWindow = new SwapWindow;
@@ -55,6 +57,7 @@ ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
     rightSideCamera = new QPushButton("right side", this);
     selectModeButton = new QPushButton("select markers",this);
     linkModeButton = new QPushButton("link markers",this);
+    saveDataButton = new QPushButton("save data", this);
     displayLinksButton = new QCheckBox("display links", this);
     eraseOneLinkButton = new QPushButton("erase one link", this);
     eraseLinks = new QPushButton("erase all links", this);
@@ -87,6 +90,35 @@ ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
 
     filewindow= new FileWindow;
 
+    demoButton->setFocusPolicy(Qt::NoFocus);
+    pauseButton->setFocusPolicy(Qt::NoFocus);
+    stopButton->setFocusPolicy(Qt::NoFocus);
+    stepForward->setFocusPolicy(Qt::NoFocus);
+    stepBackward->setFocusPolicy(Qt::NoFocus);
+    resetButton->setFocusPolicy(Qt::NoFocus);
+    frontSideCamera->setFocusPolicy(Qt::NoFocus);
+    backSideCamera->setFocusPolicy(Qt::NoFocus);
+    leftSideCamera->setFocusPolicy(Qt::NoFocus);
+    rightSideCamera->setFocusPolicy(Qt::NoFocus);
+    saveDataButton->setFocusPolicy(Qt::NoFocus);
+    displayFileCoordinates->setFocusPolicy(Qt::NoFocus);
+    selectModeButton->setFocusPolicy(Qt::NoFocus);
+    linkModeButton->setFocusPolicy(Qt::NoFocus);
+    eraseLinks->setFocusPolicy(Qt::NoFocus);
+    eraseOneLinkButton->setFocusPolicy(Qt::NoFocus);
+    saveSkeletonButton->setFocusPolicy(Qt::NoFocus);
+    resetButton->setFocusPolicy(Qt::NoFocus);
+    displayLinksButton->setFocusPolicy(Qt::NoFocus);
+    displayFormerStepsSelectedMarkers->setFocusPolicy(Qt::NoFocus);
+    formerSteps->setFocusPolicy(Qt::NoFocus);
+    furtherSteps->setFocusPolicy(Qt::NoFocus);
+    swapModeButton->setFocusPolicy(Qt::NoFocus);
+    swapMarkersButton->setFocusPolicy(Qt::NoFocus);
+    displayChoice1->setFocusPolicy(Qt::NoFocus);
+    displayChoice2->setFocusPolicy(Qt::NoFocus);
+    formerStepsLine->setFocusPolicy(Qt::NoFocus);
+    formerStepsPoints->setFocusPolicy(Qt::NoFocus);
+
     /*
      * QTabWidget
      */
@@ -105,9 +137,10 @@ ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
     QWidget *fileTab = new QWidget(tabWidget);
     QGridLayout *fileTabLayout = new QGridLayout(fileTab);
 
-    fileTabLayout->addWidget(displayFileCoordinates,5,1,2,2);
-    fileTabLayout->addWidget(displayChoice1,5,0);
-    fileTabLayout->addWidget(displayChoice2,6,0);
+    fileTabLayout->addWidget(displayChoice1, 0, 0);
+    fileTabLayout->addWidget(displayChoice2, 1, 0);
+    fileTabLayout->addWidget(displayFileCoordinates,0, 1);
+    fileTabLayout->addWidget(saveDataButton, 2, 1);
     fileTab->setLayout(fileTabLayout);
 
     QWidget *selectionTab = new QWidget(tabWidget);
@@ -167,12 +200,14 @@ ProgramWindow::ProgramWindow(QWidget *parent) : QWidget(parent)
     /*
      *
      */
+
     show();
     configureScreen();
 }
 
 ProgramWindow::ProgramWindow(QString& fileName, QWidget *parent) : ProgramWindow(parent) {
     setData(fileName);
+    screen->setLinkedMarkersVector(data.loadSkeleton());
     connectWidgets();
 }
 
@@ -213,6 +248,7 @@ void ProgramWindow::connectWidgets() {
     connect(swapModeButton, SIGNAL(clicked(bool)), this, SLOT(pickMode()));
     connect(displayLinksButton, SIGNAL(clicked(bool)), this, SLOT(enableDisplayLinks()));
     connect(eraseLinks, SIGNAL(clicked(bool)), screen, SLOT(resetLinkedMarkersIndexes()));
+    connect(saveDataButton, SIGNAL(clicked(bool)), this, SLOT(saveData()));
     connect(saveSkeletonButton, SIGNAL(clicked(bool)), this, SLOT(saveSkeleton()));
     connect(screen, SIGNAL(markerPicked(int, int)), this, SLOT(fillCoordinatesWindow(int, int)));
     connect(coordinatesWindow, SIGNAL(lineRemoved(int)), screen, SLOT(removePickedIndex(int)));
@@ -243,7 +279,7 @@ void ProgramWindow::changeStep(int index) {
 }
 
 void ProgramWindow::keyPressEvent(QKeyEvent *event) {
-    setFocus();
+    slider->setFocus();
     if(event->key() == Qt::Key_Left) {
         slider->setValue(slider->value() - 1);
     }
@@ -433,6 +469,10 @@ void ProgramWindow::enableDisplayFormerStepsSelectedMarkers() {
 
 void ProgramWindow::saveSkeleton() {
     data.saveDataSkeleton(screen->getLinkedMarkersIndexes());
+}
+
+void ProgramWindow::saveData() {
+    data.saveData();
 }
 
 void ProgramWindow::swapMarkers() {
